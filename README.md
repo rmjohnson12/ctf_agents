@@ -1,3 +1,10 @@
+This repository is my fork of the CTF_Agents project originally created by TonyZeroArch.
+
+My contributions:
+- Code contributions to the Tools section for now
+- Input on structure and architecture
+- Collaboration on security workflow concepts
+
 # CTF_Agents
 
 A hierarchical multi-agent system for solving Capture The Flag (CTF) challenges using AI-driven autonomy. This system mimics a human CTF team structure with specialized agents working together to tackle diverse challenges across multiple categories.
