@@ -1,12 +1,12 @@
 This repository is my fork of the CTF_Agents project originally created by TonyZeroArch.
 
 My contributions:
-• Built modular Python tooling to support automated CTF challenge analysis
-• Implemented cryptography agent capable of Caesar detection and brute-force decryption workflows
-• Developed reusable network tooling modules (Nmap integration, structured results pipeline)
-• Created tool execution layer and testing framework using pytest
-• Contributed to architecture for agent-driven challenge solving and structured output handling 
-• Added minimal execution entrypoint
+-  Built modular Python tooling to support automated CTF challenge analysis
+-  Implemented cryptography agent capable of Caesar detection and brute-force decryption workflows
+-  Developed reusable network tooling modules (Nmap integration, structured results pipeline)
+-  Created tool execution layer and testing framework using pytest
+-  Contributed to architecture for agent-driven challenge solving and structured output handling
+-  Added minimal execution entrypoint
 
 # CTF_Agents
 
