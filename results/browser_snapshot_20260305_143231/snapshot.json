@@ -1,0 +1,402 @@
+{
+  "url": "https://www.hackthebox.com",
+  "final_url": "https://www.hackthebox.com/",
+  "title": "Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box",
+  "http_status": 200,
+  "elapsed_s": 4.283187389373779,
+  "links": [
+    "https://www.cookiebot.com/en/what-is-behind-powered-by-cookiebot/?utm_source=banner_cb&utm_medium=referral&utm_content=v2",
+    "https://www.hackthebox.com/#",
+    "https://www.chilipiper.com/terms-and-conditions/",
+    "https://www.cloudflare.com/privacypolicy/",
+    "https://www.eyeota.com/privacy-center",
+    "https://business.safety.google/privacy/",
+    "https://legal.hubspot.com/privacy-policy",
+    "https://www.linkedin.com/legal/privacy-policy",
+    "https://recurly.com/legal/privacy/cookiepolicy",
+    "https://www.nextroll.com/privacy",
+    "https://www.redditinc.com/policies/privacy-policy",
+    "https://www.appcues.com/privacy",
+    "https://pubmatic.com/legal/privacy/",
+    "https://twitter.com/en/privacy",
+    "https://www.facebook.com/policy.php/",
+    "https://www.iponweb.com/policies-legal/bidswitch-privacy-policy/",
+    "http://www.casalemedia.com/",
+    "https://www.openx.com/legal/privacy-policy/",
+    "https://www.tapad.com/privacy",
+    "https://triplelift.com/privacy/",
+    "https://hackthebox.ai/",
+    "https://hackthebox.eu/",
+    "https://hackthebox.com/",
+    "https://account.hackthebox.com/",
+    "https://app.hackthebox.com/",
+    "https://ctf.hackthebox.com/",
+    "https://academy.hackthebox.com/",
+    "https://jobs.hackthebox.com/",
+    "https://enterprise.hackthebox.com/",
+    "https://www.cookiebot.com/",
+    "https://www.hackthebox.com/",
+    "https://www.hackthebox.com/validate-cyber-readiness",
+    "https://www.hackthebox.com/develop-cybersecurity-workforce",
+    "https://www.hackthebox.com/achieve-cyber-resilience",
+    "https://www.hackthebox.ai/",
+    "https://www.hackthebox.com/business-cyber-security-training",
+    "https://www.hackthebox.com/capture-the-flag",
+    "https://www.hackthebox.com/business/tabletop-exercises",
+    "https://www.hackthebox.com/business/talent-search",
+    "https://www.hackthebox.com/hacker/hacking-labs",
+    "https://www.hackthebox.com/red-teams",
+    "https://www.hackthebox.com/blue-teams",
+    "https://www.hackthebox.com/purple-teams",
+    "https://resources.hackthebox.com/government?hsLang=en",
+    "https://www.hackthebox.com/industry/finance",
+    "https://www.hackthebox.com/industry/professional-services",
+    "https://www.hackthebox.com/higher-education",
+    "https://www.hackthebox.com/pricing",
+    "https://www.hackthebox.com/cybersecurity-resources/all-resources",
+    "https://www.twitch.tv/hackthebox",
+    "https://www.hackthebox.com/events",
+    "https://resources.hackthebox.com/affiliates?hsLang=en",
+    "https://resources.hackthebox.com/become-an-htb-subject-matter-expert?hsLang=en",
+    "https://www.hackthebox.com/host-a-meetup",
+    "https://parrotsec.org/",
+    "https://help.hackthebox.com/en/",
+    "https://www.hackthebox.com/contact-us",
+    "https://trust.hackthebox.com/",
+    "https://www.hackthebox.com/blog",
+    "https://www.hackthebox.com/business/reports/cyber-skills-benchmark-2025",
+    "https://www.hackthebox.com/about-us",
+    "https://www.hackthebox.com/newsroom",
+    "https://www.hackthebox.com/join-us",
+    "https://www.hackthebox.com/community",
+    "https://drive.google.com/file/d/1HVUeR2Kk4zNEojqqgvow1RAQgKqhptFn/view",
+    "https://www.hackthebox.com/certificates",
+    "https://www.hackthebox.com/legal",
+    "https://www.hackthebox.com/channel-partners",
+    "https://www.hackthebox.com/business/contact-us",
+    "https://www.linkedin.com/company/hackthebox",
+    "https://twitter.com/hackthebox_eu",
+    "https://www.youtube.com/c/HackTheBox/featured",
+    "https://www.facebook.com/hackthebox.eu",
+    "https://discord.com/invite/hackthebox",
+    "https://www.youtube.com/watch?v=IV5zOrGs2Jk",
+    "https://apply.workable.com/hack-the-box-ltd",
+    "https://www.hackthebox.com/blog/category/news",
+    "https://hackthebox.store/",
+    "https://www.hackthebox.com/giftcards",
+    "https://www.hackthebox.com/business/contact-us/",
+    "https://account.hackthebox.com/register",
+    "https://www.hackthebox.com/?hsLang=en",
+    "https://www.hackthebox.com/hacker",
+    "https://www.hackthebox.com/blog/htb-forrester-wave",
+    "https://www.hackthebox.com/blog/welcome-letsdefend",
+    "https://www.hackthebox.com/blog/google-ai-red-teamer",
+    "https://www.hackthebox.com/#main-contact",
+    "https://www.g2.com/products/hack-the-box/reviews",
+    "https://academy.hackthebox.com/academy-for-business",
+    "https://www.hackthebox.com/business/dedicated-labs",
+    "https://www.hackthebox.com/business/professional-labs",
+    "https://www.hackthebox.com/business/professional-labs/cloud-labs-blacksky",
+    "https://www.hackthebox.com/hacker/blue-team-labs-for-dfir",
+    "https://www.hackthebox.com/hacker/pro-labs",
+    "https://www.hackthebox.com/business/onboarding",
+    "https://www.hackthebox.com/business/benchmarking-and-gap-analysis",
+    "https://www.hackthebox.com/business/cybersecurity-candidate-assessment-for-hiring",
+    "https://www.hackthebox.com/business/threat-exposure-management",
+    "https://www.hackthebox.com/business/cybersecurity-training-for-developers",
+    "https://www.hackthebox.com/business/crisis-simulation",
+    "https://www.hackthebox.com/business/governance-and-compliance",
+    "https://www.hackthebox.com/cybersecurity-resources/industry-reports",
+    "https://www.hackthebox.com/cybersecurity-resources/webinars",
+    "https://www.hackthebox.com/cybersecurity-resources/community-amas",
+    "https://www.hackthebox.com/cybersecurity-resources/learn-with-htb",
+    "https://www.hackthebox.com/blog/category/customer-stories",
+    "https://www.hackthebox.com/resources/cheat-sheets",
+    "https://www.hackthebox.com/cybersecurity-resources/governance-and-compliance",
+    "https://www.hackthebox.com/resources/hacking-glossary",
+    "https://www.hackthebox.com/cybersecurity-resources/guides-and-templates",
+    "https://help.hackthebox.com/",
+    "https://hackerone.com/hack_the_box",
+    "https://roadmap.hackthebox.com/",
+    "https://status.hackthebox.com/",
+    "https://hackthebox.ziftone.com/#/page/register",
+    "https://hackthebox.ziftone.com/#/page/login",
+    "https://www.instagram.com/hackthebox/",
+    "https://www.linkedin.com/company/hackthebox/",
+    "https://www.tiktok.com/@hackthebox_official",
+    "https://www.hackthebox.com/rss",
+    "https://github.com/hackthebox",
+    "javascript:void(0);",
+    "https://hs.hackthebox.com/hubfs/Legal/PN.pdf?hsLang=en",
+    "https://hs.hackthebox.com/hubfs/Legal/UA.pdf?hsLang=en"
+  ],
+  "forms": [
+    {
+      "action": "https://forms.hsforms.com/submissions/v3/public/submit/formsnext/multipart/5514032/b0376546-cce1-49d8-b813-a79b362d1666",
+      "method": "POST",
+      "inputs": [
+        {
+          "tag": "input",
+          "type": "email",
+          "name": "email",
+          "id": "email-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "firstname",
+          "id": "firstname-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "lastname",
+          "id": "lastname-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "input",
+          "type": "text",
+          "name": "company",
+          "id": "company-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "security__it_team_size",
+          "id": "security__it_team_size-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "department__dropdown_",
+          "id": "department__dropdown_-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "job_level",
+          "id": "job_level-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "industry_form",
+          "id": "industry_form-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "country_select",
+          "id": "country_select-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "select",
+          "type": "",
+          "name": "use_case",
+          "id": "use_case-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": true
+        },
+        {
+          "tag": "textarea",
+          "type": "",
+          "name": "message",
+          "id": "message-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "source_gtm",
+          "id": "source_gtm-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "utm_campaign",
+          "id": "utm_campaign-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "utm_source",
+          "id": "utm_source-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "utm_medium",
+          "id": "utm_medium-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "utm_content",
+          "id": "utm_content-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "utm_term",
+          "id": "utm_term-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+          "value": "",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "submit",
+          "name": "",
+          "id": "",
+          "value": "Submit",
+          "required": false
+        },
+        {
+          "tag": "input",
+          "type": "hidden",
+          "name": "hs_context",
+          "id": "",
+          "value": "{\"embedAtTimestamp\":\"1772739154286\",\"formDefinitionUpdatedAt\":\"1767971126044\",\"lang\":\"en\",\"renderRawHtml\":\"true\",\"userAgent\":\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\"pageTitle\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"pageUrl\":\"https://www.hackthebox.com/\",\"pageId\":\"206745392475\",\"isHubSpotCmsGeneratedPage\":true,\"formTarget\":\"#hs_form_target_form_756720370\",\"formInstanceId\":\"2934\",\"rawInlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"hsFormKey\":\"e9bcd29c3ef2e427ebdc0b71bf8a8765\",\"contentType\":\"standard-page\",\"pageName\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"rumScriptExecuteTime\":1561.5,\"rumTotalRequestTime\":1794.0999999996275,\"rumTotalRenderTime\":1818.2000000001863,\"rumServiceResponseTime\":232.59999999962747,\"rumFormRenderTime\":24.200000000186265,\"connectionType\":\"4g\",\"firstContentfulPaint\":0,\"largestContentfulPaint\":0,\"locale\":\"en\",\"timestamp\":1772739154293,\"originalEmbedContext\":{\"portalId\":\"5514032\",\"formId\":\"b0376546-cce1-49d8-b813-a79b362d1666\",\"region\":\"na1\",\"target\":\"#hs_form_target_form_756720370\",\"isBuilder\":false,\"isTestPage\":false,\"isPreview\":false,\"formInstanceId\":\"2934\",\"formsBaseUrl\":\"/_hcms/forms\",\"css\":\"\",\"inlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"isMobileResponsive\":true,\"rawInlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"hsFormKey\":\"e9bcd29c3ef2e427ebdc0b71bf8a8765\",\"pageName\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"pageId\":\"206745392475\",\"contentType\":\"standard-page\",\"formData\":{\"cssClass\":\"hs-form stacked hs-custom-form\"},\"isCMSModuleEmbed\":true},\"correlationId\":\"70fbf60c-256f-41fa-89ae-ce1ee7947123\",\"renderedFieldsIds\":[\"email\",\"firstname\",\"lastname\",\"company\",\"security__it_team_size\",\"department__dropdown_\",\"job_level\",\"industry_form\",\"country_select\",\"use_case\",\"message\",\"source_gtm\",\"utm_campaign\",\"utm_source\",\"utm_medium\",\"utm_content\",\"utm_term\"],\"captchaStatus\":\"NOT_APPLICABLE\",\"emailResubscribeStatus\":\"NOT_APPLICABLE\",\"isInsideCrossOriginFrame\":false,\"source\":\"forms-embed-1.10631\",\"sourceName\":\"forms-embed\",\"sourceVersion\":\"1.10631\",\"sourceVersionMajor\":\"1\",\"sourceVersionMinor\":\"10631\",\"allPageIds\":{\"embedContextPageId\":\"206745392475\",\"contentPageId\":206745392475,\"contentAnalyticsPageId\":\"206745392475\"},\"_debug_embedLogLines\":[{\"clientTimestamp\":1772739154265,\"level\":\"INFO\",\"message\":\"Retrieved customer callbacks used on embed context: [\\\"getExtraMetaDataBeforeSubmit\\\"]\"},{\"clientTimestamp\":1772739154265,\"level\":\"INFO\",\"message\":\"Retrieved pageContext values which may be overriden by the embed context: {\\\"pageTitle\\\":\\\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\\\",\\\"pageUrl\\\":\\\"https://www.hackthebox.com/\\\",\\\"userAgent\\\":\\\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\\\",\\\"pageId\\\":\\\"206745392475\\\",\\\"contentAnalyticsPageId\\\":\\\"206745392475\\\",\\\"contentPageId\\\":206745392475,\\\"isHubSpotCmsGeneratedPage\\\":true}\"},{\"clientTimestamp\":1772739154267,\"level\":\"INFO\",\"message\":\"Retrieved countryCode property from normalized embed definition response: \\\"US\\\"\"}],\"recaptchaVersion\":\"v2\"}",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "text_preview": "This website uses cookies We use cookies to personalise content and ads, to provide social media features and to analyse our traffic. We also share information about your use of our site with our social media, advertising and analytics partners who may combine it with other information that you\u2019ve provided to them or that they\u2019ve collected from your use of their services. Be informed that some of the cookies may transfer information to countries outside EU that may have different privacy standards. Consent Selection Necessary Preferences Statistics Marketing Show details Allow all cookies Allow selection Use necessary cookies only Why HTB Platform Plans Resources Company Business Sign in Get Started Build and scale a cyber workforce in the AI era Equip threat-ready cyber teams for an AI-accelerated landscape with hands-on labs, assessments, and pathways that build top performing teams. Upgrade your team's readiness Validate Your Readiness Develop Your Workforce Achieve Cyber Resilience Emulate Real Threats. Validate Readiness. Validate cybersecurity capabilities and operational readiness against real-world threats by replicating adversarial behaviors or attacks in threat emulation programs, so your teams are confident, capable, and prepared from day zero. Enterprise attack simulation training Real-world attack simulations and live-fire team exercises. Purple-minded scenarios Replicate complex multi-stage threats because modern breaches exploit entire networks. Break the mold of traditional training Real-time, hands-on, offensive & defensive content releases on latest vectors and vulnerabilities. Get hands-on readiness Cybersecurity skills proven in practice New to cyber, seasoned pro, or leading a national program, get hands-on training and exercises that keep people sharp, teams ready, and missions resilient. For Individuals Learn, refine and master your cyber skills Begin your journey For Businesses Build and scale threat-ready enterprise cyber teams Scale your team For Governments Cyber career development designed specifically for the public sector Learn more LATEST PRODUCT NEWS Hack The Box launches the world's first AI Range The world\u2019s first controlled AI cyber range built to test and benchmark the safety, limits and capabilities of autonomous AI security agents. HTB AI Range replicates live, high-stakes cyber battlegrounds, tailored for enterprise readiness, where AI agents and human operators are evaluated side-by-side. Every model and every human is tested, refined and retested until mastery is measurable. Learn more Leader in The Forrester Wave\u2122: Cybersecurity Skills And Training Platforms Hack The Box has been recognized as a leader in The Forrester Wave\u2122: Cybersecurity Skills And Training Platforms, Q4 2023. Discover why we\u2019re named a leader Hack The Box Acquires LetsDefend: Shaping the future of cyber readiness Learn more Hack The Box and Google partner to lead the future of AI security education Learn more Solutions for all cybersecurity domains Build a high-performing SOC with hands-on simulations, continuous measurement, and content mapped to MITRE & NIST. Blue Teams Red Teams Purple Teams AI Agents Make defenders your strongest control Build a high-performing SOC with hands-on simulations, continuous measurement, and content mapped to MITRE & NIST. \u2713 SOC Readiness Plans: Training plans covering monitoring, triage, escalation, and critical tooling. \u2713 Response Simulation: DFIR labs to rehearse end-to-end breach response and forensic analysis. \u2713 Threat intel paths: Emulate TTPs, tune detections, and improve hunts. \u2713 Instant Team assessments: Spin up prebuilt or custom defensive CTFs (180+ scenarios) in minutes. Live demo 4.3m+ learners Chat about labs, share resources and jobs. Connect with 200k+ hackers from all over the world. Join Discord 4.8 Rating by G2 users Get a full demo with our team Fill the form to schedule a live product demo and Q&A about our cyber readiness solutions. Security / IT team size* Less than 5 5-10 11-20 21-30 31-40 41-50 More than 50 Department* Education Federal Office of the CISO Red Team & Offensive Security Global Cyber Defence & Intelligence Security Engineering & Architecture Application Security (AppSec) Vulnerability Management & Remediation Identity, Access & Zero-Trust Data Protection & Privacy Governance, Risk & Compliance (GRC) Resilience, Business Continuity & Disaster Recovery Security Education, Awareness & Culture Physical & Converged Security (CS) Office) Other Job Level* C-Suite/VP Director Manager/Lead Analyst/Engineer What best describes your Organization?* Business Services IT Services Education State / Local Government Federal Government Finance Healthcare Military / Defence Manufacturing Technology Energy & Utilities Retail & eCommerce Other Country* United States United Kingdom Australia Canada France Germany Netherlands Greece Afghanistan \u00c5land Islands Albania Algeria American Samoa Andorra Angola Anguilla Antarctica Antigua and Barbuda Argentina Armenia Aruba Austria Azerbaijan Bahamas Bahrain Bangladesh Barbados Belarus Belgium Belize Benin Bermuda Bhutan Bolivia Bosnia and Herzegovina Botswana Bouvet Island Brazil British Indian Ocean Territory British Virgin Islands Brunei Bulgaria Burkina Faso Burundi Cambodia Cameroon Cape Verde Caribbean Netherlands Cayman Islands Central African Republic Chad Chile China Christmas Island Cocos (Keeling) Islands Colombia Comoros Congo Cook Islands Costa Rica Cote d'Ivoire Croatia Cuba Cura\u00e7ao Cyprus Czech Republic Democratic Republic of the Congo Denmark Djibouti Dominica Dominican Republic East Timor Ecuador Egypt El Salvador Equatorial Guinea Eritrea Estonia Ethiopia Falkland Islands Faroe Islands Fiji Finland French Guiana French Polynesia French Southern and Antarctic Lands Gabon Gambia Georgia Ghana Gibraltar Greenland Grenada Guadeloupe Guam Guatemala Guernsey Guinea Guinea-Bissau Guyana Haiti Heard Island and McDonald Islands Honduras Hong Kong Hungary Iceland India Indonesia Iran Iraq Ireland Isle of Man Israel Italy Jamaica Japan Jersey Jordan Kazakhstan Kenya Kiribati Kosovo Kuwait Kyrgyzstan Laos Latvia Lebanon Lesotho Liberia Libya Liechtenstein Lithuania Luxembourg Macau Macedonia (FYROM) Madagascar Malawi Malaysia Maldives Mali Malta Marshall Islands Martinique Mauritania Mauritius Mayotte Mexico Micronesia Moldova Monaco Mongolia Montenegro Montserrat Morocco Mozambique Myanmar (Burma) Namibia Nauru Nepal Netherlands Antilles New Caledonia New Zealand Nicaragua Niger Nigeria Niue Norfolk Island North Korea Northern Mariana Islands Norway Oman Pakistan Palau Palestine Panama Papua New Guinea Paraguay Peru Philippines Pitcairn Islands Poland Portugal Puerto Rico Qatar R\u00e9union Romania Russia Rwanda Saint Barth\u00e9lemy Saint Helena Saint Kitts and Nevis Saint Lucia Saint Martin Saint Pierre and Miquelon Saint Vincent and the Grenadines Samoa San Marino Sao Tome and Principe Saudi Arabia Senegal Serbia Seychelles Sierra Leone Singapore Sint Maarten Slovakia Slovenia Solomon Islands Somalia South Africa South Georgia and the South Sandwich Islands South Korea South Sudan Spain Sri Lanka Sudan Suriname Svalbard and Jan Mayen Swaziland Sweden Switzerland Syria Taiwan Tajikistan Tanzania Thailand Togo Tokelau Tonga Trinidad and Tobago Tunisia Turkey Turkmenistan Turks and Caicos Islands Tuvalu U.S. Virgin Islands Uganda Ukraine United Arab Emirates United States Minor Outlying Islands Uruguay Uzbekistan Vanuatu Vatican City Venezuela Vietnam Wallis and Futuna Western Sahara Yemen Zambia Zimbabwe I'm looking for help with...* Team benchmark and gap analysis Emerging threats and tactic response preparation Internal & external candidate assessment Breach and crisis simulation Onboarding and talent retention Code vulnerability and risk mitigation Other The #1 platform to build attack-ready teams and organizations Maximum curriculum management flexibility, enhanced skills reporting, and engaging gamification features. Book a demo to get the business results. Your plan includes: \u2713 Unmatched content library \u2713 Workforce development plans \u2713 Centralized user management \u2713 Advanced analytics & reporting \u2713 Source, hire, and retain talent The #1 platform to build attack-ready teams and organizations. Get a demo Products Teams Courses & Certifications Cyber Ranges Enterprise Attack Simulations Cloud Infrastructure Simulations Capture The Flag Tabletop Exercises Talent Sourcing Individuals Courses & Certifications Hacking Labs Defensive Labs Red Team Labs Capture The Flag Job Board Solutions Job Roles Red Teams Blue Teams Purple Teams Industries Government Education Finance MSSPs Use Cases Technical Onboarding Team Benchmarking Candidate Assessment Threat Management Code Vulnerability Crisis Simulation Governance & Compliance Resources Community Blog Industry Reports Webinars AMAs Learn with HTB Customer Stories Cheat Sheets Compliance Sheets Glossary Guides & Templates Parrot OS Help Center Programs Channel & Resellers Ambassador Program Affiliate Program SME Program Company About us Newsroom Careers Brand Guidelines Certificate Validation Trust Center Vulnerability Disclosure Product Updates Status Contact Us Support Enterprise Sales Partners Become a Partner Register a Deal Store HTB Swag Buy Gift Cards Cookie Settings Privacy Policy User Agreement \u00a9 2025 Hack The Box",
+  "cookies": [
+    {
+      "name": "__cf_bm",
+      "value": "fIkEO_cgXd1GbRFyeRJs_SEN4yz_qmgx24WlEP3oGZE-1772739152-1.0.1.1-Qqt._qCW2xBsgEeaR1EZsD8JWm35hK4anTgU8zyXiHV493R4oj8UAVHxXxXNSJyCJJU4OgIg7jFwpf8x8wZTEJWd2y06xA8R5VQO_bwtLg4",
+      "domain": ".hackthebox.com",
+      "path": "/",
+      "expires": 1772740952.720816,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "x0Fhb3xGR.8abZ29tBjNOKSKlE0YqEpiGI5Qhht4bdk-1772739153561-0.0.1.1-604800000",
+      "domain": ".hackthebox.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__cf_bm",
+      "value": "j3pV9rK7vYrwPWoBzvyDi94lUKvfj0Ej5ITVmR1j.hE-1772739154-1.0.1.1-X_xmjr7VQefqtkAwjXbSLjlVb31gNcT0KWjwdz6IgFyllck1rCQNzkZqNXhgU8S7kDMMrMXaklmGvk257z1KM_gBZE_9edtPGWlg6YNaAV8",
+      "domain": ".hubspot.com",
+      "path": "/",
+      "expires": 1772740954.30577,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "bitXW_SZolMfcjncJxbY2.59jkw6FaEFZj0hrgD5sdg-1772739154361-0.0.1.1-604800000",
+      "domain": ".hubspot.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "_cfuvid",
+      "value": "fhg4GTmdXOLC3YE0sjgSyqwv1vxoJ6Z59VyFt5eG2Jk-1772739154523-0.0.1.1-604800000",
+      "domain": ".hsforms.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "script_srcs": [
+    "https://consent.cookiebot.com/c6744560-9be5-4645-9305-83ef9e0b993d/cc.js?renew=false&referer=www.hackthebox.com&dnt=false&init=false",
+    "https://consentcdn.cookiebot.com/consentconfig/c6744560-9be5-4645-9305-83ef9e0b993d/hackthebox.com/configuration.js",
+    "https://consent.cookiebot.com/uc.js",
+    "https://www.hackthebox.com/hs/hsstatic/jquery-libs/static-1.1/jquery/jquery-1.7.1.js",
+    "https://consent.cookiebot.com/uc.js",
+    "https://cdn.jsdelivr.net/npm/hockeystack@latest/hockeystack.min.js",
+    "https://www.hackthebox.com/hs/hsstatic/content-cwv-embed/static-1.1293/embed.js",
+    "https://www.hackthebox.com/hs/hsstatic/cos-i18n/static-1.53/bundles/project.js",
+    "https://www.hackthebox.com/_hcms/forms/v2.js",
+    "https://www.hackthebox.com/hs/scriptloader/5514032.js",
+    "https://www.hackthebox.com/hs/hsstatic/HubspotToolsMenu/static-1.640/js/index.js",
+    "https://static.cloudflareinsights.com/beacon.min.js/vcd15cbe7772f49c399c6a5babf22c1241717689176015"
+  ],
+  "hidden_inputs": [
+    {
+      "name": "source_gtm",
+      "id": "source_gtm-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "utm_campaign",
+      "id": "utm_campaign-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "utm_source",
+      "id": "utm_source-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "utm_medium",
+      "id": "utm_medium-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "utm_content",
+      "id": "utm_content-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "utm_term",
+      "id": "utm_term-b0376546-cce1-49d8-b813-a79b362d1666_2934",
+      "value": ""
+    },
+    {
+      "name": "hs_context",
+      "id": "",
+      "value": "{\"embedAtTimestamp\":\"1772739154286\",\"formDefinitionUpdatedAt\":\"1767971126044\",\"lang\":\"en\",\"renderRawHtml\":\"true\",\"userAgent\":\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\",\"pageTitle\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"pageUrl\":\"https://www.hackthebox.com/\",\"pageId\":\"206745392475\",\"isHubSpotCmsGeneratedPage\":true,\"formTarget\":\"#hs_form_target_form_756720370\",\"formInstanceId\":\"2934\",\"rawInlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"hsFormKey\":\"e9bcd29c3ef2e427ebdc0b71bf8a8765\",\"contentType\":\"standard-page\",\"pageName\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"rumScriptExecuteTime\":1561.5,\"rumTotalRequestTime\":1794.0999999996275,\"rumTotalRenderTime\":1818.2000000001863,\"rumServiceResponseTime\":232.59999999962747,\"rumFormRenderTime\":24.200000000186265,\"connectionType\":\"4g\",\"firstContentfulPaint\":0,\"largestContentfulPaint\":0,\"locale\":\"en\",\"timestamp\":1772739154293,\"originalEmbedContext\":{\"portalId\":\"5514032\",\"formId\":\"b0376546-cce1-49d8-b813-a79b362d1666\",\"region\":\"na1\",\"target\":\"#hs_form_target_form_756720370\",\"isBuilder\":false,\"isTestPage\":false,\"isPreview\":false,\"formInstanceId\":\"2934\",\"formsBaseUrl\":\"/_hcms/forms\",\"css\":\"\",\"inlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"isMobileResponsive\":true,\"rawInlineMessage\":\"<span>Thanks for submitting the form. The team will get in touch with you soon!</span>\",\"hsFormKey\":\"e9bcd29c3ef2e427ebdc0b71bf8a8765\",\"pageName\":\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\",\"pageId\":\"206745392475\",\"contentType\":\"standard-page\",\"formData\":{\"cssClass\":\"hs-form stacked hs-custom-form\"},\"isCMSModuleEmbed\":true},\"correlationId\":\"70fbf60c-256f-41fa-89ae-ce1ee7947123\",\"renderedFieldsIds\":[\"email\",\"firstname\",\"lastname\",\"company\",\"security__it_team_size\",\"department__dropdown_\",\"job_level\",\"industry_form\",\"country_select\",\"use_case\",\"message\",\"source_gtm\",\"utm_campaign\",\"utm_source\",\"utm_medium\",\"utm_content\",\"utm_term\"],\"captchaStatus\":\"NOT_APPLICABLE\",\"emailResubscribeStatus\":\"NOT_APPLICABLE\",\"isInsideCrossOriginFrame\":false,\"source\":\"forms-embed-1.10631\",\"sourceName\":\"forms-embed\",\"sourceVersion\":\"1.10631\",\"sourceVersionMajor\":\"1\",\"sourceVersionMinor\":\"10631\",\"allPageIds\":{\"embedContextPageId\":\"206745392475\",\"contentPageId\":206745392475,\"contentAnalyticsPageId\":\"206745392475\"},\"_debug_embedLogLines\":[{\"clientTimestamp\":1772739154265,\"level\":\"INFO\",\"message\":\"Retrieved customer callbacks used on embed context: [\\\"getExtraMetaDataBeforeSubmit\\\"]\"},{\"clientTimestamp\":1772739154265,\"level\":\"INFO\",\"message\":\"Retrieved pageContext values which may be overriden by the embed context: {\\\"pageTitle\\\":\\\"Cyber Mastery: Community Inspired. Enterprise Trusted. | Hack The Box\\\",\\\"pageUrl\\\":\\\"https://www.hackthebox.com/\\\",\\\"userAgent\\\":\\\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36\\\",\\\"pageId\\\":\\\"206745392475\\\",\\\"contentAnalyticsPageId\\\":\\\"206745392475\\\",\\\"contentPageId\\\":206745392475,\\\"isHubSpotCmsGeneratedPage\\\":true}\"},{\"clientTimestamp\":1772739154267,\"level\":\"INFO\",\"message\":\"Retrieved countryCode property from normalized embed definition response: \\\"US\\\"\"}],\"recaptchaVersion\":\"v2\"}"
+    }
+  ],
+  "artifacts": {
+    "screenshot_path": "results/browser_snapshot_20260305_143231/screenshot.png",
+    "html_path": "results/browser_snapshot_20260305_143231/page.html",
+    "json_path": "results/browser_snapshot_20260305_143231/snapshot.json"
+  }
+}

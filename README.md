@@ -14,6 +14,8 @@ A hierarchical multi-agent system for solving Capture The Flag (CTF) challenges 
 
 ## 🎯 Overview
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TonyZeroArch/CTF_Agents)
+
 CTF_Agents is a modular, multi-agent system designed to autonomously solve CTF challenges across various categories including:
 - **Web Exploitation**: XSS, SQLi, CSRF, SSRF, etc.
 - **Cryptography**: Classical and modern ciphers, hashing, encoding

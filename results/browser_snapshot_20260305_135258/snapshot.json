@@ -1,0 +1,17 @@
+{
+  "url": "https://example.com",
+  "final_url": "https://example.com/",
+  "title": "Example Domain",
+  "http_status": 200,
+  "elapsed_s": 1.7916591167449951,
+  "links": [
+    "https://iana.org/domains/example"
+  ],
+  "forms": [],
+  "text_preview": "Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more",
+  "artifacts": {
+    "screenshot_path": "results/browser_snapshot_20260305_135258/screenshot.png",
+    "html_path": "results/browser_snapshot_20260305_135258/page.html",
+    "json_path": "results/browser_snapshot_20260305_135258/snapshot.json"
+  }
+}
