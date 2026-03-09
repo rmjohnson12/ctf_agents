@@ -2,13 +2,15 @@
 import json
 import sys
 from pathlib import Path
+from typing import List
+
 
 from agents.coordinator.coordinator_agent import CoordinatorAgent
 from agents.specialists.cryptography.crypto_agent import CryptographyAgent
 from agents.specialists.web_exploitation.web_agent import WebExploitationAgent
 
 
-def main(argv: list[str]) -> int:
+def main(argv: List[str]) -> int:
     if len(argv) < 2:
         print("Usage: python main.py <challenge_json_path>")
         return 2
