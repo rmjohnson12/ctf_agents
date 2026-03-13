@@ -1,0 +1,30 @@
+{
+  "id": "crypto_004",
+  "name": "Example Single-Byte XOR Challenge",
+  "category": "crypto",
+  "difficulty": "easy",
+  "description": "Decrypt this XOR-encrypted hex string: '624f4646450a7d4558464e'.",
+  "points": 100,
+  "files": [],
+  "hints": [
+    "The ciphertext is hex-encoded",
+    "Try a single-byte XOR key"
+  ],
+  "tags": [
+    "crypto",
+    "xor",
+    "single-byte-xor"
+  ],
+  "url": null,
+  "connection_info": null,
+  "status": "active",
+  "assigned_agents": [],
+  "start_time": null,
+  "completion_time": null,
+  "flag": null,
+  "metadata": {
+    "author": "CTF Team",
+    "created_date": "2024-01-01",
+    "cipher_type": "xor"
+  }
+}

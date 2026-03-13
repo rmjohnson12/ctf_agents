@@ -1,0 +1,30 @@
+{
+  "id": "crypto_002",
+  "name": "Example Base64 Challenge",
+  "category": "crypto",
+  "difficulty": "easy",
+  "description": "Decode the following Base64 string: 'SGVsbG8gV29ybGQ='.",
+  "points": 100,
+  "files": [],
+  "hints": [
+    "This is a common text encoding",
+    "Look for a padded Base64 string"
+  ],
+  "tags": [
+    "crypto",
+    "encoding",
+    "base64"
+  ],
+  "url": null,
+  "connection_info": null,
+  "status": "active",
+  "assigned_agents": [],
+  "start_time": null,
+  "completion_time": null,
+  "flag": null,
+  "metadata": {
+    "author": "CTF Team",
+    "created_date": "2024-01-01",
+    "cipher_type": "base64"
+  }
+}

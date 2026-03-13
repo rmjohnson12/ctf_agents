@@ -1,0 +1,30 @@
+{
+  "id": "crypto_003",
+  "name": "Example Hex Challenge",
+  "category": "crypto",
+  "difficulty": "easy",
+  "description": "Decode this hex string: '48656c6c6f20576f726c64'.",
+  "points": 100,
+  "files": [],
+  "hints": [
+    "Each byte is represented by two hexadecimal characters",
+    "Try decoding the string as raw bytes"
+  ],
+  "tags": [
+    "crypto",
+    "encoding",
+    "hex"
+  ],
+  "url": null,
+  "connection_info": null,
+  "status": "active",
+  "assigned_agents": [],
+  "start_time": null,
+  "completion_time": null,
+  "flag": null,
+  "metadata": {
+    "author": "CTF Team",
+    "created_date": "2024-01-01",
+    "cipher_type": "hex"
+  }
+}
