@@ -4,6 +4,7 @@ import re
 from dataclasses import dataclass
 from typing import List, Optional
 
+from tools.base_tool import BaseTool
 from tools.common.runner import ToolRunner
 from tools.common.result import ToolResult
 
@@ -23,19 +24,24 @@ class NmapScan:
     raw: ToolResult
 
 
-class NmapTool:
+class NmapTool(BaseTool):
     """
-    Thin wrapper around nmap. MVP goal:
-    - run a basic scan
-    - parse 'PORT STATE SERVICE' lines into structured ports
+    Thin wrapper around nmap.
     """
 
-    def __init__(self, runner: Optional[ToolRunner] = None):
-        self.runner = runner or ToolRunner()
+    @property
+    def tool_name(self) -> str:
+        return "nmap"
+
+    def run(self, target: str, *, timeout_s: int = 120) -> NmapScan:
+        """
+        Perform a top-ports scan against a target.
+        """
+        return self.scan_top(target, timeout_s=timeout_s)
 
     def scan_top(self, target: str, *, timeout_s: int = 120) -> NmapScan:
-        res = self.runner.run(
-            ["nmap", "-sV", "--top-ports", "100", target],
+        res = self.execute(
+            ["-sV", "--top-ports", "100", target],
             timeout_s=timeout_s,
         )
         ports = self._parse_ports(res.stdout)

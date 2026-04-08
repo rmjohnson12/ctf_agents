@@ -1,0 +1,1 @@
+{"id": "sim_forensics_001", "name": "Hidden in Plain Sight", "category": "forensics", "description": "Analyze this file for hidden flags.", "files": ["challenges/active/sim_web_001/artifact.bin"]}

@@ -1,0 +1,8 @@
+{
+  "id": "sim_coding_001",
+  "name": "Math Automation",
+  "category": "misc",
+  "difficulty": "easy",
+  "description": "Calculate the sum of all prime numbers between 1 and 100 and print it in the format CTF{result}.",
+  "metadata": {}
+}

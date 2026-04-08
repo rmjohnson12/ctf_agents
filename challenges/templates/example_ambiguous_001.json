@@ -1,0 +1,9 @@
+{
+  "id": "ambiguous_001",
+  "name": "Weird Login",
+  "category": "misc",
+  "description": "A login page contains the string 'SGVsbG8gV29ybGQ=' and hidden fields.",
+  "target": {"url": "http://example.com"},
+  "tags": ["login", "base64"],
+  "metadata": {}
+}

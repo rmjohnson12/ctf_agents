@@ -1,0 +1,11 @@
+{
+  "id": "sim_web_001",
+  "name": "Iterative Web Recon",
+  "category": "web",
+  "difficulty": "medium",
+  "description": "We found this suspicious URL: http://example.com. There might be a hidden file mentioned in the page content. Find the flag.",
+  "url": "http://example.com",
+  "files": ["challenges/active/sim_web_001/artifact.bin"],
+  "hints": ["Check the files provided and scan the URL."],
+  "metadata": {}
+}

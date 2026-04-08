@@ -10,6 +10,8 @@ import base64
 import binascii
 import re
 
+from core import challenge
+
 
 class CryptographyAgent(BaseAgent):
     """
@@ -52,6 +54,8 @@ class CryptographyAgent(BaseAgent):
         description = challenge.get("description", "").lower()
         hints = " ".join(challenge.get("hints", [])).lower()
         metadata = challenge.get("metadata", {})
+        tags = " ".join(challenge.get("tags", [])).lower()
+        cipher_text = self._extract_ciphertext(challenge)
         cipher_types = []
 
         if any(k in description for k in ["caesar", "shift", "rot"]):
@@ -61,7 +65,12 @@ class CryptographyAgent(BaseAgent):
         if metadata.get("cipher_type") == "caesar":
             cipher_types.append("caesar_cipher")
 
-        if "base64" in description or metadata.get("cipher_type") == "base64":
+        if (
+            "base64" in description
+            or "base64" in tags
+            or metadata.get("cipher_type") == "base64"
+            or self._looks_like_base64(cipher_text)
+        ):
             cipher_types.append("base64")
         if "hex" in description or metadata.get("cipher_type") == "hex":
             cipher_types.append("hex")
