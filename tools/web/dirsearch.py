@@ -42,12 +42,14 @@ class DirsearchTool(BaseTool):
         for line in res.stdout.splitlines():
             m = re.search(r"(\d{3})\s+-\s+([0-9KMGTB ]+)\s+-\s+(/.+)", line)
             if m:
-                entries.append(
-                    DirsearchEntry(
-                        status=int(m.group(1)),
-                        size=m.group(2).strip(),
-                        url=m.group(3).strip()
+                status = int(m.group(1))
+                if 200 <= status < 400: # Only interesting findings
+                    entries.append(
+                        DirsearchEntry(
+                            status=status,
+                            size=m.group(2).strip(),
+                            url=m.group(3).strip()
+                        )
                     )
-                )
                 
         return DirsearchResult(target_url=url, entries=entries, raw=res)

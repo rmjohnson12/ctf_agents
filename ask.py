@@ -13,6 +13,8 @@ from agents.specialists.web_exploitation.web_agent import WebExploitationAgent
 from agents.specialists.misc.coding_agent import CodingAgent
 from agents.specialists.forensics.forensics_agent import ForensicsAgent
 from agents.specialists.reverse_engineering.reverse_agent import ReverseEngineeringAgent
+from agents.specialists.osint.osint_agent import OSINTAgent
+from agents.specialists.log_analysis.log_agent import LogAnalysisAgent
 from core.decision_engine.llm_reasoner import LLMReasoner
 
 def main():
@@ -26,12 +28,17 @@ def main():
     reasoner = LLMReasoner()
     
     # Step 1: Use LLM to convert natural language to challenge JSON
+    from core.utils.system_checks import get_available_tools, get_system_context
+    available_tools = get_available_tools()
+    system_ctx = get_system_context()
+
     prompt = f"""
 Convert the following natural language security instruction into a standard CTF challenge JSON object.
 Instruction: {user_input}
 
 Current working directory: {os.getcwd()}
 Available files in directory: {', '.join([f for f in os.listdir('.') if os.path.isfile(f)])}
+{system_ctx}
 
 Return ONLY the JSON object.
 Example shape:
@@ -57,7 +64,8 @@ Example shape:
         print(f"LLM mapping failed or not available, using heuristics...")
         # Heuristic Fallback
         # 1. Extract potential paths from prompt (words containing / or starting with ~)
-        potential_paths = [w.strip(" \"',") for w in user_input.split() if "/" in w or w.startswith("~")]
+        # Strip trailing punctuation like ?, !, or .
+        potential_paths = [w.strip(" \"',?!.;") for w in user_input.split() if "/" in w or w.startswith("~")]
         files_in_prompt = []
         for p in potential_paths:
             full_path = os.path.expanduser(p)
@@ -71,10 +79,19 @@ Example shape:
         files_in_prompt = list(set(files_in_prompt))
 
         category = "misc"
-        if any(f.endswith('.pdf') for f in files_in_prompt):
+        url = None
+        # Simple regex for URL extraction
+        import re
+        url_match = re.search(r'https?://[^\s<>"]+|www\.[^\s<>"]+', user_input)
+        if url_match:
+            url = url_match.group(0).strip(".,")
+
+        if any(f.endswith('.pdf') or f.endswith('.pcap') or f.endswith('.pcapng') for f in files_in_prompt):
             category = "forensics"
         elif any(f.endswith('.py') or f.endswith('.exe') for f in files_in_prompt) or "authenticate" in user_input.lower():
             category = "reverse"
+        elif url or ".cloud" in user_input.lower():
+            category = "web"
         elif any(f.endswith('.txt') for f in files_in_prompt) or "decrypt" in user_input.lower() or "password" in user_input.lower() or "rockyou" in user_input.lower():
             category = "crypto"
 
@@ -83,20 +100,33 @@ Example shape:
             "name": "Heuristic Task",
             "category": category,
             "description": user_input,
-            "files": files_in_prompt
+            "files": files_in_prompt,
+            "url": url,
+            "metadata": {"system_tools": available_tools}
         }
 
     print(f"Mapped to category: {challenge.get('category')}")
     if challenge.get("files"):
         print(f"Target files: {challenge.get('files')}")
+    if available_tools:
+        print(f"Detected tools: {len(available_tools)} available")
 
-    # Step 2: Initialize Coordinator and solve
-    coordinator = CoordinatorAgent()
+    # Step 2: Initialize Tools and Coordinator
+    from tools.web.browser_snapshot_tool import BrowserSnapshotTool
+    browser_tool = BrowserSnapshotTool()
+    
+    coordinator = CoordinatorAgent(browser_snapshot_tool=browser_tool)
     coordinator.register_agent(CryptographyAgent())
-    coordinator.register_agent(WebExploitationAgent())
+    
+    # Initialize WebExploitationAgent with its tools
+    web_agent = WebExploitationAgent(browser_tool=browser_tool)
+    coordinator.register_agent(web_agent)
+    
     coordinator.register_agent(CodingAgent(reasoner=coordinator.reasoner))
     coordinator.register_agent(ForensicsAgent())
     coordinator.register_agent(ReverseEngineeringAgent(reasoner=coordinator.reasoner))
+    coordinator.register_agent(OSINTAgent(browser_tool=browser_tool))
+    coordinator.register_agent(LogAnalysisAgent())
 
     result = coordinator.solve_challenge(challenge)
 

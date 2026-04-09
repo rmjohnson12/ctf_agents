@@ -41,6 +41,7 @@ class BrowserSnapshotResult:
     links: List[str]
     forms: List[Dict[str, Any]]
     text_preview: str
+    html_content: str
 
     # High-value CTF signals
     cookies: List[Dict[str, Any]]
@@ -52,16 +53,31 @@ class BrowserSnapshotResult:
     html_path: str
     json_path: str
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "url": self.url,
+            "final_url": self.final_url,
+            "title": self.title,
+            "http_status": self.http_status,
+            "elapsed_s": self.elapsed_s,
+            "links": self.links,
+            "forms": self.forms,
+            "text_preview": self.text_preview,
+            "html_content": self.html_content,
+            "cookies": self.cookies,
+            "script_srcs": self.script_srcs,
+            "hidden_inputs": self.hidden_inputs,
+            "artifacts": {
+                "screenshot_path": self.screenshot_path,
+                "html_path": self.html_path,
+                "json_path": self.json_path,
+            }
+        }
+
 
 class BrowserSnapshotTool:
     """
     MVP Playwright snapshot utility for web recon.
-
-    Goals:
-    - load a URL in a real browser context (JS-rendered)
-    - extract links/forms/visible text (bounded)
-    - save screenshot + rendered HTML + JSON snapshot to results/
-    - return structured metadata for agent consumption
     """
 
     def __init__(
@@ -71,6 +87,7 @@ class BrowserSnapshotTool:
         max_text_chars: int = 20_000,
         max_links: int = 500,
         max_forms: int = 200,
+        max_runs_to_keep: int = 10,
     ):
         self.results_dir = Path(results_dir)
         self.results_dir.mkdir(parents=True, exist_ok=True)
@@ -78,6 +95,26 @@ class BrowserSnapshotTool:
         self.max_text_chars = max_text_chars
         self.max_links = max_links
         self.max_forms = max_forms
+        self.max_runs_to_keep = max_runs_to_keep
+
+    def cleanup(self):
+        """Delete old snapshot folders to keep results dir clean."""
+        try:
+            dirs = sorted(
+                [d for d in self.results_dir.iterdir() if d.is_dir() and (d.name.startswith("browser_snapshot_") or d.name.startswith("form_submit_"))],
+                key=lambda x: x.stat().st_mtime,
+                reverse=True
+            )
+            if len(dirs) > self.max_runs_to_keep:
+                import shutil
+                for old_dir in dirs[self.max_runs_to_keep:]:
+                    shutil.rmtree(old_dir)
+        except:
+            pass
+
+    def run(self, url: str, **kwargs) -> BrowserSnapshotResult:
+        """Alias for snapshot() to match BaseTool interface."""
+        return self.snapshot(url, **kwargs)
 
     def snapshot(
         self,
@@ -85,12 +122,10 @@ class BrowserSnapshotTool:
         *,
         timeout_s: int = 30,
         wait_until: str = "networkidle",
-        allow_downloads: bool = False,
         cookies: Optional[List[Dict[str, Any]]] = None,
     ) -> BrowserSnapshotResult:
+        self.cleanup()
         started = time.time()
-
-        # Use a timestamp to avoid clobbering runs
         ts = time.strftime("%Y%m%d_%H%M%S")
         run_dir = self.results_dir / f"browser_snapshot_{ts}"
         run_dir.mkdir(parents=True, exist_ok=True)
@@ -105,6 +140,7 @@ class BrowserSnapshotTool:
         links: List[str] = []
         forms: List[Dict[str, Any]] = []
         text_preview = ""
+        html_content = ""
         captured_cookies: List[Dict[str, Any]] = []
         script_srcs: List[str] = []
         hidden_inputs: List[Dict[str, str]] = []
@@ -112,163 +148,177 @@ class BrowserSnapshotTool:
         try:
             with sync_playwright() as p:
                 browser = p.chromium.launch(headless=True)
-
-                context = browser.new_context(
-                    viewport=DEFAULT_VIEWPORT,
-                    user_agent=DEFAULT_USER_AGENT,
-                    accept_downloads=allow_downloads,
-                )
                 
+                processed_cookies = []
                 if cookies:
-                    context.add_cookies(cookies)
+                    from urllib.parse import urlparse
+                    parsed_url = urlparse(url)
+                    domain = parsed_url.netloc.split(':')[0] # strip port if present
+                    for c in cookies:
+                        nc = c.copy()
+                        if 'domain' not in nc: nc['domain'] = domain
+                        if 'path' not in nc: nc['path'] = '/'
+                        # remove 'url' if present as playwright prefers domain/path
+                        if 'url' in nc: del nc['url']
+                        processed_cookies.append(nc)
+
+                context = browser.new_context(viewport=DEFAULT_VIEWPORT, user_agent=DEFAULT_USER_AGENT)
+                if processed_cookies:
+                    context.add_cookies(processed_cookies)
                 
                 page = context.new_page()
-
                 resp = page.goto(url, wait_until=wait_until, timeout=timeout_s * 1000)
-                if resp is not None:
-                    status = int(resp.status)
+                if resp is not None: status = int(resp.status)
 
-                # Small settle for late JS
-                page.wait_for_timeout(500)
-                # High-value CTF signals
+                page.wait_for_timeout(1000) 
                 captured_cookies = context.cookies()
-
-                script_srcs = page.eval_on_selector_all(
-                    "script[src]",
-                    "els => els.map(s => s.src).filter(Boolean)",
-                )
-
-                hidden_inputs = page.eval_on_selector_all(
-                    "input[type=hidden]",
-                    "els => els.map(i => ({name: i.name || '', id: i.id || '', value: i.value || ''}))",
-                )
-
+                script_srcs = page.eval_on_selector_all("script[src]", "els => els.map(s => s.src).filter(Boolean)")
+                hidden_inputs = page.eval_on_selector_all("input[type=hidden]", "els => els.map(i => ({name: i.name || '', id: i.id || '', value: i.value || ''}))")
                 final_url = page.url
                 title = page.title()
-
-                # Rendered HTML
-                html = page.content()
-                html_path.write_text(html, encoding="utf-8")
-
-                # Screenshot
+                html_content = page.content()
+                html_path.write_text(html_content, encoding="utf-8")
                 page.screenshot(path=str(screenshot_path), full_page=True)
 
-                # Extract links (absolute)
-                # Use page.eval to resolve URLs robustly in-browser
-                links = page.eval_on_selector_all(
-                    "a[href]",
-                    """els => els
-                        .map(a => a.href)
-                        .filter(Boolean)""",
-                )
-                # Dedupe while preserving order
+                links = page.eval_on_selector_all("a[href]", "els => els.map(a => a.href).filter(Boolean)")
                 seen = set()
-                deduped = []
-                for u in links:
-                    if u not in seen:
-                        seen.add(u)
-                        deduped.append(u)
-                links = deduped[: self.max_links]
+                links = [u for u in links if not (u in seen or seen.add(u))][:self.max_links]
 
-                # Extract forms + inputs
-                forms = page.eval_on_selector_all(
-                    "form",
-                    """forms => forms.slice(0, 1000).map(f => {
-                        const action = f.action || "";
-                        const method = (f.method || "GET").toUpperCase();
-                        const inputs = Array.from(f.querySelectorAll("input, textarea, select")).map(el => {
-                            const tag = el.tagName.toLowerCase();
-                            const type = (el.getAttribute("type") || "").toLowerCase();
-                            return {
-                                tag,
-                                type,
-                                name: el.getAttribute("name") || "",
-                                id: el.getAttribute("id") || "",
-                                value: (el.getAttribute("value") || ""),
-                                required: el.hasAttribute("required"),
-                            };
-                        });
-                        return { action, method, inputs };
-                    })""",
-                )
-                forms = forms[: self.max_forms]
+                forms = page.eval_on_selector_all("form", """forms => forms.map(f => {
+                    const action = f.action || "";
+                    const method = (f.method || "GET").toUpperCase();
+                    const inputs = Array.from(f.querySelectorAll("input, textarea, select")).map(el => ({
+                        tag: el.tagName.toLowerCase(),
+                        type: (el.getAttribute("type") || "").toLowerCase(),
+                        name: el.getAttribute("name") || "",
+                        id: el.getAttribute("id") || "",
+                        value: (el.getAttribute("value") || ""),
+                    }));
+                    return { action, method, inputs };
+                })""")[:self.max_forms]
 
-                # Visible text (bounded + normalized)
-                body_text = page.eval_on_selector(
-                    "body", "el => (el && el.innerText) ? el.innerText : ''"
-                )
+                body_text = page.eval_on_selector("body", "el => (el && el.innerText) ? el.innerText : ''")
                 text_preview = _truncate(_norm_ws(body_text or ""), self.max_text_chars)
-
                 browser.close()
-
-        except PlaywrightTimeoutError:
-            # Keep whatever we have; title/status may be empty
-            pass
+        except Exception as e:
+            text_preview = f"Snapshot failed: {e}"
+            html_content = text_preview
 
         elapsed = time.time() - started
-
-        payload = {
-            "url": url,
-            "final_url": final_url,
-            "title": title,
-            "http_status": status,
-            "elapsed_s": elapsed,
-            "links": links,
-            "forms": forms,
-            "text_preview": text_preview,
-            "cookies": captured_cookies,
-            "script_srcs": script_srcs,
-            "hidden_inputs": hidden_inputs,
+        
+        # Save JSON snapshot
+        result_dict = {
+            "url": url, "final_url": final_url, "title": title, "http_status": status,
+            "elapsed_s": elapsed, "links": links, "forms": forms, 
+            "text_preview": text_preview, "html_content": html_content,
+            "cookies": captured_cookies, "script_srcs": script_srcs, "hidden_inputs": hidden_inputs,
             "artifacts": {
                 "screenshot_path": str(screenshot_path),
                 "html_path": str(html_path),
                 "json_path": str(json_path),
-            },
+            }
         }
-        json_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        json_path.write_text(json.dumps(result_dict, indent=2), encoding="utf-8")
 
         return BrowserSnapshotResult(
-            url=url,
-            final_url=final_url,
-            title=title,
-            http_status=status,
-            elapsed_s=elapsed,
-            links=links,
-            forms=forms,
-            text_preview=text_preview,
-            cookies=captured_cookies,
-            script_srcs=script_srcs,
-            hidden_inputs=hidden_inputs,
-            screenshot_path=str(screenshot_path),
-            html_path=str(html_path),
-            json_path=str(json_path),
+            url, final_url, title, status, elapsed, links, forms, text_preview, html_content,
+            captured_cookies, script_srcs, hidden_inputs, str(screenshot_path), str(html_path), str(json_path)
         )
-if __name__ == "__main__":
-    import json
-    import sys
 
-    if len(sys.argv) < 2:
-        print("Usage: python tools/web/browser_snapshot_tool.py <url>")
-        raise SystemExit(2)
+    def submit_form(
+        self,
+        url: str,
+        form_meta: Dict[str, Any],
+        form_data: Dict[str, Any],
+        *,
+        timeout_s: int = 30,
+        wait_until: str = "networkidle",
+        cookies: Optional[List[Dict[str, Any]]] = None,
+    ) -> BrowserSnapshotResult:
+        self.cleanup()
+        started = time.time()
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        run_dir = self.results_dir / f"form_submit_{ts}"
+        run_dir.mkdir(parents=True, exist_ok=True)
 
-    tool = BrowserSnapshotTool()
-    result = tool.snapshot(sys.argv[1])
+        screenshot_path = run_dir / "screenshot.png"
+        html_path = run_dir / "page.html"
+        json_path = run_dir / "snapshot.json"
 
-    print(json.dumps(
-        {
-            "title": result.title,
-            "final_url": result.final_url,
-            "http_status": result.http_status,
-            "links": len(result.links),
-            "forms": len(result.forms),
-            "cookies": len(result.cookies),
-            "script_srcs": len(result.script_srcs),
-            "hidden_inputs": len(result.hidden_inputs),
+        final_url = url
+        title = ""
+        status: Optional[int] = None
+        text_preview = ""
+        html_content = ""
+        captured_cookies: List[Dict[str, Any]] = []
+
+        try:
+            with sync_playwright() as p:
+                browser = p.chromium.launch(headless=True)
+                
+                processed_cookies = []
+                if cookies:
+                    from urllib.parse import urlparse
+                    parsed_url = urlparse(url)
+                    domain = parsed_url.netloc.split(':')[0]
+                    for c in cookies:
+                        nc = c.copy()
+                        if 'domain' not in nc: nc['domain'] = domain
+                        if 'path' not in nc: nc['path'] = '/'
+                        if 'url' in nc: del nc['url']
+                        processed_cookies.append(nc)
+
+                context = browser.new_context(viewport=DEFAULT_VIEWPORT, user_agent=DEFAULT_USER_AGENT)
+                if processed_cookies:
+                    context.add_cookies(processed_cookies)
+                
+                page = context.new_page()
+                page.goto(url, wait_until=wait_until, timeout=timeout_s * 1000)
+                for name, value in form_data.items():
+                    selector = f'input[name="{name}"], input[id="{name}"], textarea[name="{name}"], select[name="{name}"]'
+                    try:
+                        page.wait_for_selector(selector, timeout=2000)
+                        page.fill(selector, str(value))
+                    except: pass
+                
+                try:
+                    submit_selector = 'input[type="submit"], button[type="submit"], button:has-text("Login"), button:has-text("Sign In")'
+                    if page.query_selector(submit_selector): page.click(submit_selector)
+                    else: page.keyboard.press("Enter")
+                except: page.keyboard.press("Enter")
+
+                page.wait_for_load_state(wait_until, timeout=5000)
+                page.wait_for_timeout(1000)
+                final_url = page.url
+                title = page.title()
+                html_content = page.content()
+                html_path.write_text(html_content, encoding="utf-8")
+                page.screenshot(path=str(screenshot_path), full_page=True)
+                captured_cookies = context.cookies()
+                body_text = page.eval_on_selector("body", "el => (el && el.innerText) ? el.innerText : ''")
+                text_preview = _truncate(_norm_ws(body_text or ""), self.max_text_chars)
+                browser.close()
+        except Exception as e:
+            text_preview = f"Form submission failed: {e}"
+            html_content = text_preview
+
+        elapsed = time.time() - started
+        
+        # Save JSON snapshot
+        result_dict = {
+            "url": url, "final_url": final_url, "title": title, "http_status": status,
+            "elapsed_s": elapsed, "links": [], "forms": [], 
+            "text_preview": text_preview, "html_content": html_content,
+            "cookies": captured_cookies, "script_srcs": [], "hidden_inputs": [],
             "artifacts": {
-                "screenshot_path": result.screenshot_path,
-                "html_path": result.html_path,
-                "json_path": result.json_path,
-            },
-        },
-        indent=2,
-    ))
+                "screenshot_path": str(screenshot_path),
+                "html_path": str(html_path),
+                "json_path": str(json_path),
+            }
+        }
+        json_path.write_text(json.dumps(result_dict, indent=2), encoding="utf-8")
+
+        return BrowserSnapshotResult(
+            url, final_url, title, status, elapsed, [], [], text_preview, html_content,
+            captured_cookies, [], [], str(screenshot_path), str(html_path), str(json_path)
+        )

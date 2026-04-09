@@ -99,7 +99,7 @@ class ReverseEngineeringAgent(BaseAgent):
                         else:
                             steps.append(f"❌ Verification FAILED: Program returned '{res.stdout.strip()}'.")
                 
-                if self.reasoner.client is None:
+                if not self.reasoner.is_available:
                     steps.append("LLM not available for complex code analysis.")
                     continue
 

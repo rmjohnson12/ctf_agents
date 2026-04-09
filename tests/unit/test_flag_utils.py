@@ -9,8 +9,8 @@ def test_extract_flags_htb():
     assert extract_flags(text) == ["HTB{htb_style_flag_01}"]
 
 def test_extract_flags_multiple():
-    text = "First CTF{one} and then HTB{two} and maybe flag{three} and NCL SKY-ABCD-1234"
-    assert extract_flags(text) == ["CTF{one}", "HTB{two}", "flag{three}", "SKY-ABCD-1234"]
+    text = "First CTF{flag_one} and then HTB{flag_two} and maybe flag{three_is_long} and NCL SKY-ABCD-1234"
+    assert extract_flags(text) == ["CTF{flag_one}", "HTB{flag_two}", "flag{three_is_long}", "SKY-ABCD-1234"]
 
 def test_extract_flags_ncl():
     text = "Found it: SKY-QIZK-8026"
@@ -21,8 +21,8 @@ def test_extract_flags_complex():
     assert extract_flags(text) == ["HTB{f!@#$%^&*()+=|?><}"]
 
 def test_find_first_flag():
-    text = "Multiple here: CTF{first} HTB{second}"
-    assert find_first_flag(text) == "CTF{first}"
+    text = "Multiple here: CTF{first_flag} HTB{second_flag}"
+    assert find_first_flag(text) == "CTF{first_flag}"
 
 def test_no_flags():
     text = "No flags in this string."

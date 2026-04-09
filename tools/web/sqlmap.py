@@ -42,11 +42,13 @@ class SqlmapTool(BaseTool):
         vulnerable = "is vulnerable" in res.stdout or "back-end DBMS" in res.stdout
         
         db_type = None
-        db_match = re.search(r"back-end DBMS: ([^\n]+)", res.stdout)
+        db_match = re.search(r"back-end DBMS: ([A-Za-z0-9 ]+)", res.stdout)
         if db_match:
             db_type = db_match.group(1).strip()
             
         payloads = re.findall(r"Payload: ([^\n]+)", res.stdout)
+        # Clean up payloads if they were captured too greedily (heuristic)
+        payloads = [p.split('    ')[0].strip() for p in payloads]
         
         return SqlmapResult(
             target_url=url,

@@ -10,6 +10,8 @@ from agents.specialists.web_exploitation.web_agent import WebExploitationAgent
 from agents.specialists.misc.coding_agent import CodingAgent
 from agents.specialists.forensics.forensics_agent import ForensicsAgent
 from agents.specialists.reverse_engineering.reverse_agent import ReverseEngineeringAgent
+from agents.specialists.osint.osint_agent import OSINTAgent
+from agents.specialists.log_analysis.log_agent import LogAnalysisAgent
 
 
 def main(argv: List[str]) -> int:
@@ -23,14 +25,19 @@ def main(argv: List[str]) -> int:
 
     challenge = json.loads(challenge_path.read_text())
 
-    coordinator = CoordinatorAgent()
+    from tools.web.browser_snapshot_tool import BrowserSnapshotTool
+    browser_tool = BrowserSnapshotTool()
+
+    coordinator = CoordinatorAgent(browser_snapshot_tool=browser_tool)
 
     # Register agents with IDs that match the reasoner/coordinator routing targets
     coordinator.register_agent(CryptographyAgent())  # agent_id defaults to "crypto_agent"
-    coordinator.register_agent(WebExploitationAgent(agent_id="web_agent"))
+    coordinator.register_agent(WebExploitationAgent(agent_id="web_agent", browser_tool=browser_tool))
     coordinator.register_agent(CodingAgent(agent_id="coding_agent"))
     coordinator.register_agent(ForensicsAgent(agent_id="forensics_agent"))
     coordinator.register_agent(ReverseEngineeringAgent(agent_id="reverse_agent"))
+    coordinator.register_agent(OSINTAgent(agent_id="osint_agent", browser_tool=browser_tool))
+    coordinator.register_agent(LogAnalysisAgent(agent_id="log_agent"))
 
     result = coordinator.solve_challenge(challenge)
     print(json.dumps(result, indent=2))

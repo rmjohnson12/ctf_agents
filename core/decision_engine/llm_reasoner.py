@@ -36,6 +36,11 @@ class LLMReasoner:
 
         self.model = model
 
+    @property
+    def is_available(self) -> bool:
+        """Checks if the LLM client is configured and available."""
+        return hasattr(self, 'client') and self.client is not None
+
     def analyze_challenge(self, challenge: Dict[str, Any]) -> ChallengeAnalysis:
         if self.client is None:
             return self._heuristic_analysis(challenge)
@@ -140,22 +145,26 @@ CRITICAL: Return ONLY the fixed Python code. Do not include explanation, comment
             return ""
 
     def _build_analysis_prompt(self, challenge: Dict[str, Any]) -> str:
+        system_tools = challenge.get("metadata", {}).get("system_tools", [])
+        tools_ctx = f"Available system tools: {', '.join(system_tools)}" if system_tools else ""
+
         return f"""
-You are analyzing a CTF challenge for routing and planning.
+    You are analyzing a CTF challenge for routing and planning.
+    {tools_ctx}
 
-Return ONLY valid JSON with this shape:
-{{
-  "category_guess": "crypto|web|reverse|pwn|forensics|osint|misc|unknown",
-  "confidence": 0.0,
-  "reasoning": "short explanation",
-  "recommended_target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|none",
-  "recommended_action": "run_agent|run_tool|stop",
-  "detected_indicators": ["indicator1", "indicator2"]
-}}
+    Return ONLY valid JSON with this shape:
+    {{
+    "category_guess": "crypto|web|reverse|pwn|forensics|osint|log|misc|unknown",
+    "confidence": 0.0,
+    "reasoning": "short explanation",
+    "recommended_target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|osint_agent|log_agent|none",
+    "recommended_action": "run_agent|run_tool|stop",
+    "detected_indicators": ["indicator1", "indicator2"]
+    }}
 
-Challenge:
-{json.dumps(challenge, indent=2)}
-""".strip()
+    Challenge:
+    {{json.dumps(challenge, indent=2)}}
+    """.strip()
 
     def _build_next_action_prompt(
         self,
@@ -163,38 +172,54 @@ Challenge:
         analysis: ChallengeAnalysis,
         history: List[Dict[str, Any]],
     ) -> str:
+        system_tools = challenge.get("metadata", {}).get("system_tools", [])
+        tools_ctx = f"Available system tools: {', '.join(system_tools)}" if system_tools else ""
+
         return f"""
-You are deciding the next step in a CTF agent workflow.
+    You are deciding the next step in a CTF agent workflow.
+    {tools_ctx}
 
-Return ONLY valid JSON with this shape:
-{{
-  "next_action": "run_agent|run_tool|stop",
-  "target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|none",
-  "reasoning": "short explanation",
-  "inputs": {{}}
-}}
+    Return ONLY valid JSON with this shape:
+    {{
+    "next_action": "run_agent|run_tool|stop",
+    "target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|osint_agent|log_agent|none",
+    "reasoning": "short explanation",
+    "inputs": {{}}
+    }}
 
-Challenge:
-{json.dumps(challenge, indent=2)}
+    Challenge:
+    {{json.dumps(challenge, indent=2)}}
 
-Analysis:
-{json.dumps(asdict(analysis), indent=2)}
+    Analysis:
+    {{json.dumps(asdict(analysis), indent=2)}}
 
-History:
-{json.dumps(history, indent=2)}
-""".strip()
+    History:
+    {{json.dumps(history, indent=2)}}
+    """.strip()
 
     def _heuristic_analysis(self, challenge: Dict[str, Any]) -> ChallengeAnalysis:
+        # Only look at user-provided text for heuristics, ignore metadata (which contains tool names)
         text = " ".join([
             challenge.get("name", ""),
             challenge.get("description", ""),
             " ".join(challenge.get("hints", [])),
             " ".join(challenge.get("tags", [])),
-            json.dumps(challenge.get("metadata", {})),
         ]).lower()
 
         indicators: List[str] = []
         files = challenge.get("files", [])
+
+        # Priority 0: Network Forensics (PCAP)
+        if any(f.endswith('.pcap') or f.endswith('.pcapng') for f in files) or "pcap" in text:
+            indicators.append("network_forensics")
+            return ChallengeAnalysis(
+                category_guess="forensics",
+                confidence=0.96,
+                reasoning="Detected PCAP files or network forensics keywords.",
+                recommended_target="forensics_agent",
+                recommended_action="run_agent",
+                detected_indicators=indicators,
+            )
 
         # Priority 1: Reverse Engineering (Source/Binary analysis)
         if any(f.endswith('.py') or f.endswith('.exe') or f.endswith('.bin') or f.endswith('.elf') for f in files) or \
@@ -222,7 +247,7 @@ History:
                 detected_indicators=indicators,
             )
 
-        # Priority 2: Crypto
+        # Priority 3: Crypto
         if any(word in text for word in ["cipher", "decrypt", "base64", "hex", "xor", "caesar", "password", "rockyou", "crack"]):
             indicators.append("crypto_terms")
             return ChallengeAnalysis(
@@ -234,39 +259,77 @@ History:
                 detected_indicators=indicators,
             )
 
-        # Priority 3: SQLi
+        # Priority 4: SQLi
         if any(word in text for word in ["sqli", "sql injection", "login bypass", "union select"]):
             indicators.append("sqli_terms")
             return ChallengeAnalysis(
                 category_guess="web",
                 confidence=0.91,
-                reasoning="Detected SQL injection indicators.",
+                reasoning="Detected SQL injection indicators. Recommending tony_htb_sql tool.",
                 recommended_target="tony_htb_sql",
                 recommended_action="run_tool",
                 detected_indicators=indicators,
             )
 
-        # Priority 4: Coding
-        if any(word in text for word in ["script", "python", "automate", "program", "code", "algorithm"]):
-            indicators.append("coding_terms")
+        # Priority 5: Web
+        url = challenge.get("url")
+        if url or any(word in text for word in ["url", "http", "login", "form", "page", "cookie", "endpoint"]):
+            indicators.append("web_terms")
+            
+            # Heuristic pivot: If "inspect", "form", or "page" are used without specific attack keywords,
+            # prefer browser_snapshot tool for initial reconnaissance.
+            if any(k in text for k in ["inspect", "form", "page", "snapshot", "look at"]):
+                return ChallengeAnalysis(
+                    category_guess="web",
+                    confidence=0.89,
+                    reasoning="Web challenge requiring initial inspection. Recommending browser_snapshot.",
+                    recommended_target="browser_snapshot",
+                    recommended_action="run_tool",
+                    detected_indicators=indicators,
+                )
+
             return ChallengeAnalysis(
-                category_guess="misc",
-                confidence=0.92,
-                reasoning="Detected programming or scripting indicators.",
-                recommended_target="coding_agent",
+                category_guess="web",
+                confidence=0.88,
+                reasoning="Detected web-related terms or URL.",
+                recommended_target="web_agent",
                 recommended_action="run_agent",
                 detected_indicators=indicators,
             )
 
-        # Priority 5: Web
-        if any(word in text for word in ["url", "http", "login", "form", "page", "cookie", "endpoint"]):
-            indicators.append("web_terms")
+        # OSINT (Lower priority)
+        if any(k in text for k in ["osint", "whois", "social media", "located"]):
+            indicators.append("osint_terms")
             return ChallengeAnalysis(
-                category_guess="web",
-                confidence=0.88,
-                reasoning="Detected web-related terms.",
-                recommended_target="browser_snapshot",
-                recommended_action="run_tool",
+                category_guess="osint",
+                confidence=0.85,
+                reasoning="Detected OSINT indicators.",
+                recommended_target="osint_agent",
+                recommended_action="run_agent",
+                detected_indicators=indicators,
+            )
+
+        # Log Analysis (Lower priority)
+        if any(f.endswith('.log') for f in files) or any(k in text for k in ["access log", "auth log", "server log"]):
+            indicators.append("log_terms")
+            return ChallengeAnalysis(
+                category_guess="log",
+                confidence=0.84,
+                reasoning="Detected log analysis indicators.",
+                recommended_target="log_agent",
+                recommended_action="run_agent",
+                detected_indicators=indicators,
+            )
+
+        # Priority 6: Coding
+        if any(word in text for word in ["script", "python", "automate", "program", "code", "algorithm"]):
+            indicators.append("coding_terms")
+            return ChallengeAnalysis(
+                category_guess="misc",
+                confidence=0.80,
+                reasoning="Detected programming or scripting indicators.",
+                recommended_target="coding_agent",
+                recommended_action="run_agent",
                 detected_indicators=indicators,
             )
 
@@ -285,15 +348,40 @@ History:
         analysis: ChallengeAnalysis,
         history: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
+        # Decision Quality: Check history for artifacts to pivot strategy
+        last_result = history[-1] if history else {}
+        last_agent = last_result.get("agent_id")
+        last_status = last_result.get("status")
+        last_artifacts = last_result.get("artifacts", {})
+
+        # Pivot: If any step found a login form, let coding_agent try to bypass it
+        if "browser_snapshot" in last_artifacts:
+            forms = last_artifacts["browser_snapshot"].get("forms", [])
+            has_login = any("user" in str(f).lower() or "pass" in str(f).lower() for f in forms)
+            if has_login and last_status != "solved":
+                return {
+                    "next_action": "run_agent",
+                    "target": "coding_agent",
+                    "reasoning": "A login form was discovered in the browser snapshot. Pivoting to coding_agent to attempt an automated login bypass.",
+                    "inputs": {"task": "Attempt SQLi login bypass or default credentials on the discovered form."}
+                }
+
         # Decision Quality: Don't repeat the same failed agent
-        last_agent = history[-1].get("agent_id") if history else None
-        last_status = history[-1].get("status") if history else None
-        
         if last_agent == analysis.recommended_target and last_status != "solved":
             return {
                 "next_action": "stop",
                 "target": "none",
                 "reasoning": f"Specialist {last_agent} already attempted this task and did not find a solution. Stopping to prevent infinite loop.",
+                "inputs": {},
+            }
+
+        # Decision Quality: Don't repeat the same failed tool
+        last_target = last_result.get("routing", {}).get("selected_target")
+        if last_target == "browser_snapshot" and analysis.recommended_target == "browser_snapshot":
+            return {
+                "next_action": "stop",
+                "target": "none",
+                "reasoning": "Browser snapshot already performed. No further information gathered. Stopping.",
                 "inputs": {},
             }
 
@@ -326,6 +414,30 @@ History:
                 "next_action": "run_agent",
                 "target": "reverse_agent",
                 "reasoning": "Reverse engineering challenge detected.",
+                "inputs": {},
+            }
+
+        if analysis.recommended_target == "osint_agent":
+            return {
+                "next_action": "run_agent",
+                "target": "osint_agent",
+                "reasoning": "OSINT challenge detected.",
+                "inputs": {},
+            }
+
+        if analysis.recommended_target == "log_agent":
+            return {
+                "next_action": "run_agent",
+                "target": "log_agent",
+                "reasoning": "Log analysis challenge detected.",
+                "inputs": {},
+            }
+
+        if analysis.recommended_target == "web_agent":
+            return {
+                "next_action": "run_agent",
+                "target": "web_agent",
+                "reasoning": "Web challenge detected.",
                 "inputs": {},
             }
 

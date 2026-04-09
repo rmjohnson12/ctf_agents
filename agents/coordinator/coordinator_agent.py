@@ -133,7 +133,11 @@ class CoordinatorAgent(BaseAgent):
 
                 result = None
                 if action == "run_agent":
-                    result = self._run_selected_agent(challenge, target, [])
+                    # Pass the specific task description from the reasoner to the agent
+                    agent_challenge = challenge.copy()
+                    if decision.get("inputs", {}).get("task"):
+                        agent_challenge['current_task_description'] = decision["inputs"]["task"]
+                    result = self._run_selected_agent(agent_challenge, target, [])
                 elif action == "run_tool":
                     result = self._run_selected_tool(challenge, target, [])
                 else:
@@ -286,7 +290,7 @@ class CoordinatorAgent(BaseAgent):
             "flag": None,
             "steps": routing_steps + [f"Ran browser snapshot tool against {url}."],
             "artifacts": {
-                "browser_snapshot": snapshot_result,
+                "browser_snapshot": snapshot_result.to_dict() if hasattr(snapshot_result, 'to_dict') else snapshot_result,
             },
             "routing": {
                 "selected_target": "browser_snapshot",

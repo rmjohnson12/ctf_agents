@@ -5,6 +5,8 @@ from tools.common.result import ToolResult
 from typing import Dict, Any
 
 class MockReasoner:
+    def __init__(self):
+        self.is_available = True
     def generate_script(self, challenge, task_description):
         return "print('CTF{coding_is_fun}')"
 
@@ -56,6 +58,7 @@ def test_coding_agent_self_correction_success():
         def __init__(self):
             self.calls = 0
             self.captured_stdout = None
+            self.is_available = True
         def generate_script(self, challenge, task_description):
             return "print('error_output')" # Initial bad script
         def fix_script(self, challenge, script, error, stdout=None):

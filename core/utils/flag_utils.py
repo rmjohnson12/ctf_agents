@@ -4,13 +4,13 @@ from typing import List, Optional
 # Common flag patterns: CTF{...}, HTB{...}, flag{...}, SKY-XXXX-####, etc.
 # Pattern 1: Prefix{content} - Require at least 4 chars inside to avoid random noise false positives
 FLAG_REGEX_BRaces = re.compile(r"([a-zA-Z0-9_-]+)\{[a-zA-Z0-9_\-\.!@#$%^&*()+=|?><]{4,}\}")
-# Pattern 2: SKY-XXXX-#### (NCL Style)
-FLAG_REGEX_NCL = re.compile(r"SKY-[A-Z0-9]{4}-\d{4}")
+# Pattern 2: SKY-XXXX-#### or NCL-XXXX-#### (NCL Style)
+FLAG_REGEX_NCL = re.compile(r"(SKY|NCL)-[A-Z0-9]{4,}-[A-Z0-9-]+")
 
 def extract_flags(text: str) -> List[str]:
     """
     Extracts all potential flags from a given text.
-    Supports CTF{...}, HTB{...}, and NCL SKY-XXXX-#### formats.
+    Supports CTF{...}, HTB{...}, and NCL SKY-/NCL- formats.
     """
     if not text:
         return []
