@@ -1,0 +1,9 @@
+{
+  "id": "sim_sky_001",
+  "name": "NCL Discovery",
+  "category": "web",
+  "difficulty": "easy",
+  "description": "Scan this target for hidden files. One of them might contain an NCL flag.",
+  "url": "http://ncl.target.local",
+  "metadata": {}
+}

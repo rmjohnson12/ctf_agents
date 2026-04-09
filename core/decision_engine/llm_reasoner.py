@@ -6,7 +6,10 @@ from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
+from dotenv import load_dotenv
 
+# Load environment variables from .env file
+load_dotenv()
 
 @dataclass
 class ChallengeAnalysis:
@@ -191,18 +194,34 @@ History:
         ]).lower()
 
         indicators: List[str] = []
+        files = challenge.get("files", [])
 
-        if any(word in text for word in ["cipher", "decrypt", "base64", "hex", "xor", "caesar"]):
+        # Priority 1: Forensics (if files are present or forensics keywords found)
+        if any(f.endswith('.pdf') or f.endswith('.bin') or f.endswith('.pcap') for f in files) or \
+           any(word in text for word in ["artifact", "extract", "binwalk", "forensics", "metadata", "exiftool"]):
+            indicators.append("forensics_terms")
+            return ChallengeAnalysis(
+                category_guess="forensics",
+                confidence=0.94,
+                reasoning="Detected forensic indicators or provided files.",
+                recommended_target="forensics_agent",
+                recommended_action="run_agent",
+                detected_indicators=indicators,
+            )
+
+        # Priority 2: Crypto
+        if any(word in text for word in ["cipher", "decrypt", "base64", "hex", "xor", "caesar", "password", "rockyou", "crack"]):
             indicators.append("crypto_terms")
             return ChallengeAnalysis(
                 category_guess="crypto",
                 confidence=0.93,
-                reasoning="Detected crypto-related terms.",
+                reasoning="Detected crypto or cracking related terms.",
                 recommended_target="crypto_agent",
                 recommended_action="run_agent",
                 detected_indicators=indicators,
             )
 
+        # Priority 3: SQLi
         if any(word in text for word in ["sqli", "sql injection", "login bypass", "union select"]):
             indicators.append("sqli_terms")
             return ChallengeAnalysis(
@@ -214,6 +233,7 @@ History:
                 detected_indicators=indicators,
             )
 
+        # Priority 4: Coding
         if any(word in text for word in ["script", "python", "automate", "program", "code", "algorithm"]):
             indicators.append("coding_terms")
             return ChallengeAnalysis(
@@ -225,17 +245,7 @@ History:
                 detected_indicators=indicators,
             )
 
-        if any(word in text for word in ["artifact", "file", "disk", "memory", "pcap", "extract", "binwalk", "forensics"]):
-            indicators.append("forensics_terms")
-            return ChallengeAnalysis(
-                category_guess="forensics",
-                confidence=0.90,
-                reasoning="Detected forensics-related indicators.",
-                recommended_target="forensics_agent",
-                recommended_action="run_agent",
-                detected_indicators=indicators,
-            )
-
+        # Priority 5: Web
         if any(word in text for word in ["url", "http", "login", "form", "page", "cookie", "endpoint"]):
             indicators.append("web_terms")
             return ChallengeAnalysis(
@@ -262,6 +272,18 @@ History:
         analysis: ChallengeAnalysis,
         history: List[Dict[str, Any]],
     ) -> Dict[str, Any]:
+        # Decision Quality: Don't repeat the same failed agent
+        last_agent = history[-1].get("agent_id") if history else None
+        last_status = history[-1].get("status") if history else None
+        
+        if last_agent == analysis.recommended_target and last_status != "solved":
+            return {
+                "next_action": "stop",
+                "target": "none",
+                "reasoning": f"Specialist {last_agent} already attempted this task and did not find a solution. Stopping to prevent infinite loop.",
+                "inputs": {},
+            }
+
         if analysis.recommended_target == "crypto_agent":
             return {
                 "next_action": "run_agent",

@@ -1,20 +1,29 @@
 import re
 from typing import List, Optional
 
-# Common flag patterns: CTF{...}, HTB{...}, flag{...}, etc.
-# Matches: Prefix followed by curly braces containing anything except a closing brace.
-FLAG_REGEX = re.compile(r"([a-zA-Z0-9_-]+)?\{[a-zA-Z0-9_\-\.!@#$%^&*()+=|?><]+\}")
+# Common flag patterns: CTF{...}, HTB{...}, flag{...}, SKY-XXXX-####, etc.
+# Pattern 1: Prefix{content} - Require at least 4 chars inside to avoid random noise false positives
+FLAG_REGEX_BRaces = re.compile(r"([a-zA-Z0-9_-]+)\{[a-zA-Z0-9_\-\.!@#$%^&*()+=|?><]{4,}\}")
+# Pattern 2: SKY-XXXX-#### (NCL Style)
+FLAG_REGEX_NCL = re.compile(r"SKY-[A-Z0-9]{4}-\d{4}")
 
 def extract_flags(text: str) -> List[str]:
     """
     Extracts all potential flags from a given text.
-    Supports CTF{...}, HTB{...}, and other prefixed or unprefixed formats.
+    Supports CTF{...}, HTB{...}, and NCL SKY-XXXX-#### formats.
     """
     if not text:
         return []
     
-    matches = FLAG_REGEX.finditer(text)
-    return [m.group(0) for m in matches]
+    flags = []
+    # Match curly brace style
+    for m in FLAG_REGEX_BRaces.finditer(text):
+        flags.append(m.group(0))
+    # Match NCL style
+    for m in FLAG_REGEX_NCL.finditer(text):
+        flags.append(m.group(0))
+        
+    return flags
 
 def find_first_flag(text: str) -> Optional[str]:
     """

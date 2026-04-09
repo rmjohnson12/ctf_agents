@@ -22,6 +22,8 @@ class SimulatedReasonerV2:
 
     def analyze_challenge(self, challenge: Dict[str, Any]) -> ChallengeAnalysis:
         cid = challenge["id"]
+        if cid == "sim_sky_001":
+            return ChallengeAnalysis("web", 0.9, "NCL Web discovery task.", "web_agent", "run_agent", ["url"])
         if cid == "ambiguous_001":
             return ChallengeAnalysis("misc", 0.7, "Ambiguous: contains both web and crypto elements.", "web_agent", "run_agent", ["base64", "url"])
         if cid == "sim_htb_001":
@@ -34,6 +36,16 @@ class SimulatedReasonerV2:
         cid = challenge["id"]
         steps = self.step_counts.get(cid, 0)
         self.step_counts[cid] = steps + 1
+
+        if cid == "sim_sky_001":
+            if steps == 0:
+                return {
+                    "next_action": "run_agent",
+                    "target": "web_agent",
+                    "reasoning": "Let's perform directory discovery to find the flag."
+                }
+            else:
+                return {"next_action": "stop", "reasoning": "Scan complete."}
 
         if cid == "sim_htb_001":
             if steps == 0:
@@ -87,7 +99,19 @@ def run_simulation(challenge_path: str):
     coordinator = CoordinatorAgent(max_iterations=5)
     coordinator.reasoner = SimulatedReasonerV2() 
     
-    coordinator.register_agent(WebExploitationAgent())
+    # Mocking dirsearch for sim_sky_001
+    from unittest.mock import MagicMock
+    from tools.web.dirsearch import DirsearchResult, DirsearchEntry
+    from tools.common.result import ToolResult
+    
+    mock_ds = MagicMock()
+    mock_ds.run.return_value = DirsearchResult(
+        target_url=challenge.get("url", ""),
+        entries=[DirsearchEntry(200, "1KB", "/hidden_flag.txt")],
+        raw=ToolResult(["dirsearch"], "Found: SKY-QIZK-8026", "", 0, False, 0.1)
+    )
+    
+    coordinator.register_agent(WebExploitationAgent(dirsearch_tool=mock_ds))
     coordinator.register_agent(CodingAgent(reasoner=coordinator.reasoner))
     coordinator.register_agent(CryptographyAgent())
     coordinator.register_agent(ForensicsAgent())
@@ -114,5 +138,6 @@ if __name__ == "__main__":
         json.dump(forensics_challenge, f)
 
     run_simulation("challenges/active/sim_htb_001.json")
+    run_simulation("challenges/active/sim_sky_001.json")
     run_simulation("challenges/active/sim_forensics_001.json")
     run_simulation("challenges/templates/example_ambiguous_001.json")

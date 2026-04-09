@@ -2,22 +2,24 @@
 
 **CTF_Agents** is an advanced, iterative multi-agent system designed to autonomously solve Capture The Flag (CTF) challenges. Unlike traditional linear scanners, this system uses an **iterative feedback loop** to reason about artifacts, execute complex tools, and adapt its strategy in real time.
 
-## 🔥 Demo
+## 🔥 Demo: Natural Language Interface
 
-Example: Web → Forensics → Coding → Flag extraction (2 iterations)
+You can now give instructions in plain English. The system automatically maps your request to the right tools and files.
 
-**[ROUTER]** target=web_agent action=run_agent  
-→ *Found embedded artifact*
+```bash
+# Example: Password Cracking
+python3 ask.py "Decrypt hash 68a96446a5afb4ab69a2d15091771e39 using my_passwords.txt"
 
-**[ROUTER]** target=forensics_agent action=run_agent  
-→ *Extracted data via binwalk/strings*
+# Example: PDF Forensics
+python3 ask.py "Analyze suspicious.pdf and find the password"
+```
 
-**[ROUTER]** target=coding_agent action=run_agent  
-→ *Generated script → executed → corrected*
+**[ROUTER]** target=crypto_agent action=run_agent  
+→ *Isolated hash from prompt*  
+→ *Detected wordlist: my_passwords.txt*  
+→ *Executing Hashcat (mode 0)...*
 
-✅ **Flag recovered:** `HTB{iterative_forensics_master}`
-
-This fork extends the original architecture with standardized tool execution, iterative coordination, deep forensics capabilities, and self-correcting code execution.
+✅ **Flag recovered:** `emilybffl`
 
 ---
 
@@ -28,69 +30,26 @@ An iterative, multi-agent CTF system that reasons → acts → observes → adap
 
 ## 🚀 Key Innovations
 
-### 1. Iterative Feedback Loop (`Propose → Execute → Refine`)
-The `CoordinatorAgent` no longer performs one-shot routing. It maintains a persistent session history and continuously evaluates results from each step.
-*   **Context-Aware**: Outputs from one agent directly inform the next (e.g., Web recon scan → Crypto decoding → Forensics extraction).
-*   **Adaptive Reasoning**: Uses real execution results (stdout, artifacts, errors) to guide dynamic strategy pivots.
-*   **Bounded Autonomy**: Intelligent iteration limits ensure the agent exhausts logical paths without entering infinite loops.
+### 1. Natural Language Entry (`ask.py`)
+No more manual JSON challenge files. Just type what you want to do. The system:
+*   **Identifies Files**: Automatically detects filenames in your prompt that exist in the directory.
+*   **Auto-Categorizes**: Maps tasks to Web, Crypto, or Forensics based on keywords and file extensions.
+*   **Heuristic Fallback**: Works even without an OpenAI API key using robust rule-based logic.
 
-### 2. Self-Correcting Coding Agent
-A specialized specialist that generates and executes Python scripts for solving dynamic problems.
-*   **Auto-Correction**: Failed scripts are analyzed using `stdout`/`stderr` and automatically refined by the LLM for a retry.
-*   **Context-Aware Fixes**: Workspace files and previous execution results are fed back into the reasoning loop to ensure high-quality fixes.
-*   **Controlled Execution**: Runs inside a standardized `PythonTool` environment with strict timeouts and safeguards.
+### 2. Specialized Red Team Agents
+*   **Web Agent**: Automated reconnaissance via **Playwright**, directory discovery via **dirsearch**, and SQL injection via **sqlmap**.
+*   **Crypto Agent**: Deep integration with **Hashcat** and **John the Ripper**. Supports raw-md5, dictionary attacks, and wordlist auto-detection.
+*   **Forensics Agent**: Sequential analysis using **Binwalk**, **ExifTool**, **Strings**, and **QPDF**.
+*   **Coding Agent**: Generates and executes Python scripts to solve logic/math puzzles, with **Self-Correction** (auto-fixes crashing scripts).
 
-### 3. Deep Forensics & Artifact Extraction
-Integrated forensic workflow using a unified tool interface for hidden data discovery:
-*   **Binwalk**: Automated file signature and embedded artifact analysis.
-*   **ExifTool**: Comprehensive metadata extraction and hidden field detection.
-*   **Strings**: Intelligent extraction of printable data from binaries.
+### 3. NCL & HTB Optimized
+*   **SKY-XXXX-####**: Native support for NCL Cyber Skyline flag patterns.
+*   **HTB{...}**: Optimized for Hack The Box style flags and session-authenticated browser snapshots.
+*   **Universal Detection**: Centralized logic catches flags across all tool outputs, logs, and artifacts.
 
-### 4. Universal Flag Detection
-Centralized detection logic in `core/utils/flag_utils.py` capable of identifying diverse flag formats:
-*   ✅ `CTF{...}`
-*   ✅ `HTB{...}`
-*   ✅ Custom prefixed patterns across all tool outputs and script results.
-
----
-
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    Input[Challenge JSON] --> Coord[Coordinator Agent]
-    Coord --> Reason[LLM Reasoner / Feedback Loop]
-    Reason -- "Action: run_agent" --> Specialists
-    Reason -- "Action: stop" --> Output[Final Report / Flag]
-    
-    subgraph Specialists
-        Web[Web Exploitation]
-        Crypto[Cryptography]
-        Forensics[Forensics]
-        Coding[Coding / Self-Correction]
-    end
-    
-    Specialists -- "Artifacts & Logs" --> History[Session History]
-    History --> Reason
-```
-
----
-
-## 🛠️ Standardized Tool Layer
-All external tools run through a unified `BaseTool` interface, providing:
-*   **Structured Outputs**: Consistent access to stdout, exit codes, and execution metadata.
-*   **Safety Controls**: Centralized timeout handling and bounded logging to keep operations sane.
-*   **Extensible**: Easily integrate new tools like `sqlmap`, `nmap`, or `ghidra` by extending `BaseTool`.
-
----
-
-## 🔥 What Makes This Different?
-
-Most "AI agent" systems stop after one step:
-> call LLM → run tool → stop
-
-**This system follows a circular evolution:**
-> reasons → acts → observes → adapts → solves
+### 4. Standardized Tool & Result Layer
+*   **BaseTool**: All tools (nmap, binwalk, hashcat, etc.) use a unified interface with strict timeouts and safety boundaries.
+*   **Result Manager**: findings are persisted in `results/{challenge_id}/` with dedicated folders for reports, artifacts, and flags.
 
 ---
 
@@ -98,8 +57,8 @@ Most "AI agent" systems stop after one step:
 
 ### Prerequisites
 *   Python 3.10+
-*   Standard CTF tools installed in your `PATH`: `binwalk`, `exiftool`, `strings`, `nmap`.
-*   OpenAI API Key (configured in `config/.env`).
+*   Security Tools: `hashcat`, `john`, `binwalk`, `exiftool`, `strings`, `qpdf`, `nmap`.
+*   *(Optional)* OpenAI API Key in `.env` for advanced reasoning.
 
 ### Installation
 ```bash
@@ -110,23 +69,21 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Running a Challenge
+### Usage
 ```bash
-# Run the automated solver
-python main.py challenges/templates/example_web_challenge.json
+# General usage
+python3 ask.py "Your instruction here"
 
-# Run the end-to-end simulation test
-python simulate_v2.py
+# Use specific wordlists for cracking
+python3 ask.py "crack this hash <hash> using custom_list.txt"
 ```
 
 ---
 
 ## 🧪 Testing
-The system includes an exhaustive test suite covering iterative logic and tool consistency.
 ```bash
 pytest tests/unit/
 ```
-Includes coverage for: iterative coordination, reasoning logic, tool execution consistency, and agent behavior.
 
 ---
 

@@ -12,6 +12,7 @@ from typing import Dict, Any, List, Optional
 
 from agents.base_agent import BaseAgent, AgentType, AgentStatus
 from core.decision_engine.llm_reasoner import LLMReasoner
+from core.utils.result_manager import ResultManager
 
 
 class CoordinatorAgent(BaseAgent):
@@ -44,6 +45,7 @@ class CoordinatorAgent(BaseAgent):
         self.tony_sql_adapter = tony_sql_adapter
         self.reasoner = LLMReasoner(client=llm_client)
         self.max_iterations = max_iterations
+        self.result_manager = ResultManager()
 
     def register_agent(self, agent: BaseAgent):
         """Register a specialist or support agent with the coordinator."""
@@ -155,6 +157,10 @@ class CoordinatorAgent(BaseAgent):
             self.active_challenges.pop(challenge_id, None)
             final_result["steps"] = all_steps
             final_result["history"] = history
+            
+            # Persist the final result
+            self.result_manager.save_run_result(final_result)
+            
             return final_result
 
         except Exception as exc:

@@ -86,6 +86,7 @@ class BrowserSnapshotTool:
         timeout_s: int = 30,
         wait_until: str = "networkidle",
         allow_downloads: bool = False,
+        cookies: Optional[List[Dict[str, Any]]] = None,
     ) -> BrowserSnapshotResult:
         started = time.time()
 
@@ -104,7 +105,7 @@ class BrowserSnapshotTool:
         links: List[str] = []
         forms: List[Dict[str, Any]] = []
         text_preview = ""
-        cookies: List[Dict[str, Any]] = []
+        captured_cookies: List[Dict[str, Any]] = []
         script_srcs: List[str] = []
         hidden_inputs: List[Dict[str, str]] = []
 
@@ -117,6 +118,10 @@ class BrowserSnapshotTool:
                     user_agent=DEFAULT_USER_AGENT,
                     accept_downloads=allow_downloads,
                 )
+                
+                if cookies:
+                    context.add_cookies(cookies)
+                
                 page = context.new_page()
 
                 resp = page.goto(url, wait_until=wait_until, timeout=timeout_s * 1000)
@@ -126,7 +131,7 @@ class BrowserSnapshotTool:
                 # Small settle for late JS
                 page.wait_for_timeout(500)
                 # High-value CTF signals
-                cookies = context.cookies()
+                captured_cookies = context.cookies()
 
                 script_srcs = page.eval_on_selector_all(
                     "script[src]",
@@ -211,7 +216,7 @@ class BrowserSnapshotTool:
             "links": links,
             "forms": forms,
             "text_preview": text_preview,
-            "cookies": cookies,
+            "cookies": captured_cookies,
             "script_srcs": script_srcs,
             "hidden_inputs": hidden_inputs,
             "artifacts": {
@@ -231,7 +236,7 @@ class BrowserSnapshotTool:
             links=links,
             forms=forms,
             text_preview=text_preview,
-            cookies=cookies,
+            cookies=captured_cookies,
             script_srcs=script_srcs,
             hidden_inputs=hidden_inputs,
             screenshot_path=str(screenshot_path),

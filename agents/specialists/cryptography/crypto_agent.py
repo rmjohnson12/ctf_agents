@@ -5,12 +5,13 @@ Specialized agent for solving cryptography-based CTF challenges.
 """
 
 from typing import Dict, Any, List, Tuple, Optional
+from pathlib import Path
 from agents.base_agent import BaseAgent, AgentType
+from tools.crypto.john import JohnTool
+from tools.crypto.hashcat import HashcatTool
 import base64
 import binascii
 import re
-
-from core import challenge
 
 
 class CryptographyAgent(BaseAgent):
@@ -18,8 +19,15 @@ class CryptographyAgent(BaseAgent):
     Specialist agent for cryptography challenges.
     """
 
-    def __init__(self, agent_id: str = "crypto_agent"):
+    def __init__(
+        self, 
+        agent_id: str = "crypto_agent", 
+        john_tool: Optional[JohnTool] = None,
+        hashcat_tool: Optional[HashcatTool] = None
+    ):
         super().__init__(agent_id, AgentType.SPECIALIST)
+        self.john_tool = john_tool or JohnTool()
+        self.hashcat_tool = hashcat_tool or HashcatTool()
         self.capabilities = [
             "crypto",
             "cryptography",
@@ -110,6 +118,57 @@ class CryptographyAgent(BaseAgent):
         best_result: Optional[Tuple[str, str, float, str]] = None
         # (method_name, plaintext, score, detail)
 
+        # Hash Cracking Priority
+        if "hash" in analysis["detected_types"] or len(cipher_text) in [32, 40, 64, 128]:
+            # 1. Look for wordlist in challenge files
+            wordlist = None
+            files = challenge.get("files", [])
+            txt_files = [f for f in files if f.endswith(".txt")]
+            if txt_files:
+                wordlist = txt_files[0]
+                steps.append(f"  Using wordlist from challenge files: {wordlist}")
+            
+            # 2. Heuristic fallback for common locations
+            if not wordlist:
+                paths = [
+                    "shared/wordlists/passwords/rockyou.txt",
+                    "/usr/share/wordlists/rockyou.txt",
+                    str(Path.home() / "Downloads" / "rockyou.txt")
+                ]
+                for p in paths:
+                    if Path(p).exists():
+                        wordlist = p
+                        steps.append(f"  Using default wordlist: {p}")
+                        break
+            
+            # Use Hashcat for raw MD5 (32 chars)
+            if len(cipher_text) == 32:
+                steps.append("Attempting MD5 cracking with Hashcat")
+                try:
+                    res = self.hashcat_tool.run(cipher_text, wordlist=wordlist, mode=0)
+                    if res.cracked_password:
+                        steps.append(f"  Successfully cracked via Hashcat! Password: {res.cracked_password}")
+                        candidate = ("hashcat", res.cracked_password, 100.0, f"Cracked with Hashcat: {res.cracked_password}")
+                        best_result = self._pick_better(best_result, candidate)
+                    else:
+                        steps.append("  Hashcat failed to crack the hash.")
+                except Exception as e:
+                    steps.append(f"  Hashcat error: {e}")
+            
+            # Fallback to John for other types or if Hashcat failed
+            if best_result is None:
+                steps.append("Attempting hash cracking with John the Ripper")
+                try:
+                    res = self.john_tool.run(cipher_text, wordlist=wordlist)
+                    if res.cracked_password:
+                        steps.append(f"  Successfully cracked via John! Password: {res.cracked_password}")
+                        candidate = ("john", res.cracked_password, 100.0, f"Cracked with John: {res.cracked_password}")
+                        best_result = self._pick_better(best_result, candidate)
+                    else:
+                        steps.append("  John failed to crack the hash.")
+                except Exception as e:
+                    steps.append(f"  John error: {e}")
+
         if "caesar_cipher" in analysis["detected_types"]:
             steps.append("Attempting Caesar brute force (shifts 1-25)")
             shift, plaintext, score = self._best_caesar_candidate(cipher_text)
@@ -140,11 +199,21 @@ class CryptographyAgent(BaseAgent):
 
         if best_result is not None:
             method, plaintext, score, detail = best_result
-            steps.append(f"Selected method: {method}")
-            steps.append(detail)
-            steps.append(f"Recovered plaintext: {plaintext}")
-            steps.append(f"English score: {score:.2f}")
-            flag = plaintext
+            
+            # Decision Quality: Only mark as solved if score is decent or matches a flag
+            from core.utils.flag_utils import find_first_flag
+            is_valid_flag = find_first_flag(plaintext) is not None
+            
+            # Heuristic: -1.0 is usually random garbage
+            if score > 5.0 or is_valid_flag:
+                steps.append(f"Selected method: {method}")
+                steps.append(detail)
+                steps.append(f"Recovered plaintext: {plaintext}")
+                steps.append(f"English score: {score:.2f}")
+                flag = plaintext
+            else:
+                steps.append(f"Rejected candidate from {method} due to low English score ({score:.2f})")
+                steps.append("No implemented solver succeeded with high confidence")
         else:
             steps.append("No implemented solver succeeded")
 
@@ -168,6 +237,7 @@ class CryptographyAgent(BaseAgent):
     def _extract_ciphertext(self, challenge: Dict[str, Any]) -> str:
         description = challenge.get("description", "")
 
+        # 1. Look for quoted strings
         m = re.search(r"'([^']+)'", description)
         if m:
             return m.group(1).strip()
@@ -176,6 +246,13 @@ class CryptographyAgent(BaseAgent):
         if m:
             return m.group(1).strip()
 
+        # 2. Look for hexadecimal strings (common for hashes)
+        # Matches 32 (MD5), 40 (SHA1), or 64 (SHA256) hex chars
+        hex_match = re.search(r"\b([a-fA-F0-9]{32}|[a-fA-F0-9]{40}|[a-fA-F0-9]{64})\b", description)
+        if hex_match:
+            return hex_match.group(1)
+
+        # 3. Fallback to stripped description
         return description.strip()
 
     def _pick_better(

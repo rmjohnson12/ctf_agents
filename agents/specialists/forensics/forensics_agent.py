@@ -9,6 +9,7 @@ from typing import Dict, Any, List, Optional
 from agents.base_agent import BaseAgent, AgentType
 from tools.forensics.binwalk import BinwalkTool
 from tools.forensics.exiftool import ExiftoolTool
+from tools.forensics.qpdf import QPDFTool
 from tools.common.strings import StringsTool
 from core.utils.flag_utils import find_first_flag
 
@@ -23,12 +24,14 @@ class ForensicsAgent(BaseAgent):
         agent_id: str = "forensics_agent", 
         binwalk_tool: Optional[BinwalkTool] = None,
         exiftool_tool: Optional[ExiftoolTool] = None,
-        strings_tool: Optional[StringsTool] = None
+        strings_tool: Optional[StringsTool] = None,
+        qpdf_tool: Optional[QPDFTool] = None
     ):
         super().__init__(agent_id, AgentType.SPECIALIST)
         self.binwalk_tool = binwalk_tool or BinwalkTool()
         self.exiftool_tool = exiftool_tool or ExiftoolTool()
         self.strings_tool = strings_tool or StringsTool()
+        self.qpdf_tool = qpdf_tool or QPDFTool()
         self.capabilities = [
             "forensics",
             "file_analysis",
@@ -77,10 +80,28 @@ class ForensicsAgent(BaseAgent):
         all_artifacts = {
             "binwalk": [],
             "exiftool": [],
-            "strings": []
+            "strings": [],
+            "pdf": []
         }
 
         for file_path in files:
+            # 0. PDF Detection & Inspection
+            if file_path.lower().endswith(".pdf"):
+                steps.append(f"Detected PDF file: {file_path}")
+                try:
+                    pdf_res = self.qpdf_tool.run(file_path)
+                    if pdf_res.is_encrypted:
+                        steps.append(f"  [!] PDF is encrypted. Encryption check result in artifacts.")
+                        all_artifacts["pdf"].append({
+                            "file": file_path,
+                            "encrypted": True,
+                            "raw_info": pdf_res.raw.stdout or pdf_res.raw.stderr
+                        })
+                    else:
+                        steps.append("  PDF is not encrypted. Proceeding with standard analysis.")
+                except Exception as e:
+                    steps.append(f"  QPDF error: {e}")
+
             # 1. Binwalk
             steps.append(f"Running binwalk on {file_path}")
             try:
