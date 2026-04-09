@@ -12,6 +12,7 @@ from agents.specialists.cryptography.crypto_agent import CryptographyAgent
 from agents.specialists.web_exploitation.web_agent import WebExploitationAgent
 from agents.specialists.misc.coding_agent import CodingAgent
 from agents.specialists.forensics.forensics_agent import ForensicsAgent
+from agents.specialists.reverse_engineering.reverse_agent import ReverseEngineeringAgent
 from core.decision_engine.llm_reasoner import LLMReasoner
 
 def main():
@@ -55,10 +56,25 @@ Example shape:
     except Exception as e:
         print(f"LLM mapping failed or not available, using heuristics...")
         # Heuristic Fallback
-        files_in_prompt = [f for f in os.listdir('.') if os.path.isfile(f) and f.lower() in user_input.lower()]
+        # 1. Extract potential paths from prompt (words containing / or starting with ~)
+        potential_paths = [w.strip(" \"',") for w in user_input.split() if "/" in w or w.startswith("~")]
+        files_in_prompt = []
+        for p in potential_paths:
+            full_path = os.path.expanduser(p)
+            if os.path.exists(full_path):
+                files_in_prompt.append(full_path)
+        
+        # 2. Check current directory for filenames mentioned
+        current_files = [f for f in os.listdir('.') if os.path.isfile(f) and f.lower() in user_input.lower()]
+        files_in_prompt.extend([os.path.abspath(f) for f in current_files])
+        # Dedupe
+        files_in_prompt = list(set(files_in_prompt))
+
         category = "misc"
         if any(f.endswith('.pdf') for f in files_in_prompt):
             category = "forensics"
+        elif any(f.endswith('.py') or f.endswith('.exe') for f in files_in_prompt) or "authenticate" in user_input.lower():
+            category = "reverse"
         elif any(f.endswith('.txt') for f in files_in_prompt) or "decrypt" in user_input.lower() or "password" in user_input.lower() or "rockyou" in user_input.lower():
             category = "crypto"
 
@@ -80,6 +96,7 @@ Example shape:
     coordinator.register_agent(WebExploitationAgent())
     coordinator.register_agent(CodingAgent(reasoner=coordinator.reasoner))
     coordinator.register_agent(ForensicsAgent())
+    coordinator.register_agent(ReverseEngineeringAgent(reasoner=coordinator.reasoner))
 
     result = coordinator.solve_challenge(challenge)
 

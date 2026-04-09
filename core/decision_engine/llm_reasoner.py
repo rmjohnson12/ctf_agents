@@ -148,7 +148,7 @@ Return ONLY valid JSON with this shape:
   "category_guess": "crypto|web|reverse|pwn|forensics|osint|misc|unknown",
   "confidence": 0.0,
   "reasoning": "short explanation",
-  "recommended_target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|none",
+  "recommended_target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|none",
   "recommended_action": "run_agent|run_tool|stop",
   "detected_indicators": ["indicator1", "indicator2"]
 }}
@@ -169,7 +169,7 @@ You are deciding the next step in a CTF agent workflow.
 Return ONLY valid JSON with this shape:
 {{
   "next_action": "run_agent|run_tool|stop",
-  "target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|none",
+  "target": "crypto_agent|browser_snapshot|tony_htb_sql|coding_agent|forensics_agent|reverse_agent|none",
   "reasoning": "short explanation",
   "inputs": {{}}
 }}
@@ -196,8 +196,21 @@ History:
         indicators: List[str] = []
         files = challenge.get("files", [])
 
-        # Priority 1: Forensics (if files are present or forensics keywords found)
-        if any(f.endswith('.pdf') or f.endswith('.bin') or f.endswith('.pcap') for f in files) or \
+        # Priority 1: Reverse Engineering (Source/Binary analysis)
+        if any(f.endswith('.py') or f.endswith('.exe') or f.endswith('.bin') or f.endswith('.elf') for f in files) or \
+           any(word in text for word in ["reverse", "source code", "analyze program", "authenticate the program"]):
+            indicators.append("reverse_terms")
+            return ChallengeAnalysis(
+                category_guess="reverse",
+                confidence=0.95,
+                reasoning="Detected reverse engineering indicators or executable files.",
+                recommended_target="reverse_agent",
+                recommended_action="run_agent",
+                detected_indicators=indicators,
+            )
+
+        # Priority 2: Forensics (if files are present or forensics keywords found)
+        if any(f.endswith('.pdf') or f.endswith('.pcap') for f in files) or \
            any(word in text for word in ["artifact", "extract", "binwalk", "forensics", "metadata", "exiftool"]):
             indicators.append("forensics_terms")
             return ChallengeAnalysis(
@@ -305,6 +318,14 @@ History:
                 "next_action": "run_agent",
                 "target": "forensics_agent",
                 "reasoning": "Forensics challenge detected.",
+                "inputs": {},
+            }
+
+        if analysis.recommended_target == "reverse_agent":
+            return {
+                "next_action": "run_agent",
+                "target": "reverse_agent",
+                "reasoning": "Reverse engineering challenge detected.",
                 "inputs": {},
             }
 

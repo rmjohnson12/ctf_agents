@@ -9,6 +9,7 @@ from agents.specialists.cryptography.crypto_agent import CryptographyAgent
 from agents.specialists.web_exploitation.web_agent import WebExploitationAgent
 from agents.specialists.misc.coding_agent import CodingAgent
 from agents.specialists.forensics.forensics_agent import ForensicsAgent
+from agents.specialists.reverse_engineering.reverse_agent import ReverseEngineeringAgent
 
 
 def main(argv: List[str]) -> int:
@@ -29,6 +30,7 @@ def main(argv: List[str]) -> int:
     coordinator.register_agent(WebExploitationAgent(agent_id="web_agent"))
     coordinator.register_agent(CodingAgent(agent_id="coding_agent"))
     coordinator.register_agent(ForensicsAgent(agent_id="forensics_agent"))
+    coordinator.register_agent(ReverseEngineeringAgent(agent_id="reverse_agent"))
 
     result = coordinator.solve_challenge(challenge)
     print(json.dumps(result, indent=2))
