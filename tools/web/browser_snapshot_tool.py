@@ -87,7 +87,7 @@ class BrowserSnapshotTool:
         max_text_chars: int = 20_000,
         max_links: int = 500,
         max_forms: int = 200,
-        max_runs_to_keep: int = 10,
+        max_runs_to_keep: int = 5,
     ):
         self.results_dir = Path(results_dir)
         self.results_dir.mkdir(parents=True, exist_ok=True)

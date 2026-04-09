@@ -52,6 +52,16 @@ Just type what you want to do. The system:
 *   **BaseTool**: All tools use a unified interface with strict timeouts and safety boundaries.
 *   **Result Manager**: Findings are persisted in `results/{challenge_id}/` with dedicated folders for reports, artifacts, and flags.
 
+### 5. Latest Updates (NCL Prep Session)
+*   **OSINT Specialist**: New agent for metadata extraction, domain harvesting, and information gathering.
+*   **Log Analysis Specialist**: Detects brute-force patterns and statistical anomalies in server/auth logs.
+*   **Advanced Network Forensics**: Integrated **Scapy** for deep-packet inspection and binary stream reconstruction (recovers flags from custom TCP/UDP protocols).
+*   **Automated Web Exploitation**:
+    *   **Login Bypass**: Heuristic SQLi and Cookie Manipulation (`admin=true`) automation.
+    *   **Logic Flaw Engine**: Specifically detects and exploits **parseInt() octal bugs** found in leaked JS files.
+    *   **Heuristic Discovery**: Lightweight, high-speed directory discovery for common CTF leaks (`.env`, `.git/config`, backups).
+*   **Disk & Output Optimization**: Automated results cleanup (keeps only the 5 most recent runs) and suppressed logging for faster, cleaner terminal output.
+
 ---
 
 ## 🚦 Getting Started
