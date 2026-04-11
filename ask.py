@@ -113,17 +113,22 @@ Example shape:
 
     # Step 2: Initialize Tools and Coordinator
     from tools.web.browser_snapshot_tool import BrowserSnapshotTool
+    from tools.crypto.john import JohnTool
+    from tools.crypto.hashcat import HashcatTool
+    
     browser_tool = BrowserSnapshotTool()
+    john_tool = JohnTool()
+    hashcat_tool = HashcatTool()
     
     coordinator = CoordinatorAgent(browser_snapshot_tool=browser_tool)
-    coordinator.register_agent(CryptographyAgent())
+    coordinator.register_agent(CryptographyAgent(john_tool=john_tool, hashcat_tool=hashcat_tool))
     
     # Initialize WebExploitationAgent with its tools
     web_agent = WebExploitationAgent(browser_tool=browser_tool)
     coordinator.register_agent(web_agent)
     
     coordinator.register_agent(CodingAgent(reasoner=coordinator.reasoner))
-    coordinator.register_agent(ForensicsAgent())
+    coordinator.register_agent(ForensicsAgent(john_tool=john_tool, hashcat_tool=hashcat_tool))
     coordinator.register_agent(ReverseEngineeringAgent(reasoner=coordinator.reasoner))
     coordinator.register_agent(OSINTAgent(browser_tool=browser_tool))
     coordinator.register_agent(LogAnalysisAgent())

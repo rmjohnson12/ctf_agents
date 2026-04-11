@@ -34,16 +34,18 @@ class ReverseEngineeringAgent(BaseAgent):
         description = challenge.get("description", "").lower()
         files = challenge.get("files", [])
         
+        indicators = ["reverse", "analyze", "source code", "authenticate the program"]
         is_reverse = any(f.endswith('.py') or f.endswith('.exe') or f.endswith('.bin') for f in files) or \
-                     any(word in description for word in ["reverse", "analyze", "source code", "authenticate the program"])
+                     any(word in description for word in indicators)
         
+        detected = [k for k in indicators if k in description]
         confidence = 0.9 if is_reverse or challenge.get("category") == "reverse" else 0.2
 
         return {
             "agent_id": self.agent_id,
             "can_handle": is_reverse or challenge.get("category") == "reverse",
             "confidence": confidence,
-            "approach": "Perform static analysis and verify via execution",
+            "approach": self._plan_approach(detected),
         }
 
     def solve_challenge(self, challenge: Dict[str, Any]) -> Dict[str, Any]:

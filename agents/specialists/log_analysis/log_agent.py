@@ -36,13 +36,14 @@ class LogAnalysisAgent(BaseAgent):
         is_log = any(k in description for k in log_indicators) or \
                  any(f.endswith('.log') or f.endswith('.txt') for f in files)
         
+        detected = [k for k in log_indicators if k in description]
         confidence = 0.9 if is_log or challenge.get("category") == "log" else 0.2
 
         return {
             "agent_id": self.agent_id,
             "can_handle": is_log or challenge.get("category") == "log",
             "confidence": confidence,
-            "approach": "Parse logs and perform statistical analysis",
+            "approach": self._plan_approach(detected),
         }
 
     def solve_challenge(self, challenge: Dict[str, Any]) -> Dict[str, Any]:

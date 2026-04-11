@@ -14,6 +14,8 @@ from tools.forensics.qpdf import QPDFTool
 from tools.network.tshark import TsharkTool
 from tools.network.scapy_tool import ScapyTool
 from tools.common.strings import StringsTool
+from tools.crypto.john import JohnTool
+from tools.crypto.hashcat import HashcatTool
 from core.utils.flag_utils import find_first_flag
 
 
@@ -30,7 +32,9 @@ class ForensicsAgent(BaseAgent):
         strings_tool: Optional[StringsTool] = None,
         qpdf_tool: Optional[QPDFTool] = None,
         tshark_tool: Optional[TsharkTool] = None,
-        scapy_tool: Optional[ScapyTool] = None
+        scapy_tool: Optional[ScapyTool] = None,
+        john_tool: Optional[JohnTool] = None,
+        hashcat_tool: Optional[HashcatTool] = None
     ):
         super().__init__(agent_id, AgentType.SPECIALIST)
         self.binwalk_tool = binwalk_tool or BinwalkTool()
@@ -39,6 +43,8 @@ class ForensicsAgent(BaseAgent):
         self.qpdf_tool = qpdf_tool or QPDFTool()
         self.tshark_tool = tshark_tool or TsharkTool()
         self.scapy_tool = scapy_tool or ScapyTool()
+        self.john_tool = john_tool or JohnTool()
+        self.hashcat_tool = hashcat_tool or HashcatTool()
         self.capabilities = [
             "forensics",
             "file_analysis",
@@ -60,13 +66,17 @@ class ForensicsAgent(BaseAgent):
         indicators = ["artifact", "file", "disk", "memory", "pcap", "extract", "binwalk", "forensics"]
         is_forensics = any(k in description or k in tags for k in indicators) or bool(files)
         
+        detected_indicators = [k for k in indicators if k in description or k in tags]
+        if bool(files):
+            detected_indicators.append("files")
+
         confidence = 0.9 if is_forensics or challenge.get("category") == "forensics" else 0.2
 
         return {
             "agent_id": self.agent_id,
             "can_handle": is_forensics or challenge.get("category") == "forensics",
             "confidence": confidence,
-            "approach": "Perform file analysis and artifact extraction",
+            "approach": self._plan_approach(detected_indicators),
         }
 
     def solve_challenge(self, challenge: Dict[str, Any]) -> Dict[str, Any]:
@@ -101,10 +111,51 @@ class ForensicsAgent(BaseAgent):
                 try:
                     pdf_res = self.qpdf_tool.run(file_path)
                     if pdf_res.is_encrypted:
-                        steps.append(f"  [!] PDF is encrypted. Encryption check result in artifacts.")
+                        steps.append(f"  [!] PDF is encrypted. Attempting to find password...")
+                        
+                        # 1. Try common wordlist (rockyou) via John
+                        wordlist = None
+                        paths = [
+                            "/Users/ronniejohnson/Downloads/rockyou.txt",
+                            "shared/wordlists/passwords/rockyou.txt",
+                            "/usr/share/wordlists/rockyou.txt"
+                        ]
+                        for p in paths:
+                            if os.path.exists(p):
+                                wordlist = p
+                                break
+                        
+                        steps.append(f"  Running pdf2john and john with wordlist: {wordlist or 'incremental'}")
+                        
+                        # We need the hash first. pdf2john is usually a script.
+                        # For simplicity in this wrapper, let's see if we can use john directly or a helper.
+                        # Most CTF environments have pdf2john.pl or pdf2john.py.
+                        hash_res = self.run_shell_command(f"pdf2john.py {file_path}")
+                        if hash_res.exit_code == 0:
+                            pdf_hash = hash_res.stdout.strip()
+                            crack_res = self.john_tool.run(pdf_hash, wordlist=wordlist)
+                            if crack_res.cracked_password:
+                                flag = crack_res.cracked_password
+                                steps.append(f"  SUCCESS: PDF password found: {flag}")
+                                # Try to actually decrypt to confirm
+                                decrypt_res = self.qpdf_tool.run(file_path, password=flag)
+                                if decrypt_res.decrypted_path:
+                                    steps.append(f"  Successfully decrypted PDF to {decrypt_res.decrypted_path}")
+                            else:
+                                steps.append("  John could not crack the PDF password.")
+                        else:
+                            # Fallback: maybe just try john on the file directly if it supports it
+                            crack_res = self.john_tool.run(file_path, wordlist=wordlist)
+                            if crack_res.cracked_password:
+                                flag = crack_res.cracked_password
+                                steps.append(f"  SUCCESS: PDF password found via direct john: {flag}")
+                            else:
+                                steps.append("  Could not extract PDF hash or crack password.")
+
                         all_artifacts["pdf"].append({
                             "file": file_path,
                             "encrypted": True,
+                            "password": flag,
                             "raw_info": pdf_res.raw.stdout or pdf_res.raw.stderr
                         })
                     else:

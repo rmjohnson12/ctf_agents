@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Optional
 
@@ -247,13 +248,15 @@ CRITICAL: Return ONLY the fixed Python code. Do not include explanation, comment
                 detected_indicators=indicators,
             )
 
-        # Priority 3: Crypto
-        if any(word in text for word in ["cipher", "decrypt", "base64", "hex", "xor", "caesar", "password", "rockyou", "crack"]):
+        # Priority 3: Crypto / Decoding
+        # Special check for numerical strings (decimal/octal encoding)
+        if re.search(r'\b(?:\d{1,3}[\s,]+){3,}', text) or \
+           any(word in text for word in ["cipher", "decrypt", "decode", "base64", "hex", "xor", "caesar", "password", "rockyou", "crack"]):
             indicators.append("crypto_terms")
             return ChallengeAnalysis(
                 category_guess="crypto",
                 confidence=0.93,
-                reasoning="Detected crypto or cracking related terms.",
+                reasoning="Detected crypto/decoding indicators or numerical encoding.",
                 recommended_target="crypto_agent",
                 recommended_action="run_agent",
                 detected_indicators=indicators,

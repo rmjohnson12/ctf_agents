@@ -48,13 +48,14 @@ class CodingAgent(BaseAgent):
         coding_indicators = ['script', 'write a program', 'python', 'code', 'automate', 'parse', 'algorithm']
         is_coding = any(indicator in description for indicator in coding_indicators)
         
+        detected = [k for k in coding_indicators if k in description]
         confidence = 0.9 if is_coding or challenge.get('category') == 'misc' else 0.2
         
         return {
             'agent_id': self.agent_id,
             'can_handle': is_coding or challenge.get('category') == 'misc',
             'confidence': confidence,
-            'approach': "LLM-assisted code generation and execution"
+            'approach': self._plan_approach(detected)
         }
     
     def solve_challenge(self, challenge: Dict[str, Any]) -> Dict[str, Any]:

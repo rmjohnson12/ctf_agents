@@ -48,13 +48,14 @@ class OSINTAgent(BaseAgent):
         ]
         is_osint = any(k in description or k in tags for k in osint_indicators)
         
+        detected = [k for k in osint_indicators if k in description or k in tags]
         confidence = 0.9 if is_osint or challenge.get("category") == "osint" else 0.2
 
         return {
             "agent_id": self.agent_id,
             "can_handle": is_osint or challenge.get("category") == "osint",
             "confidence": confidence,
-            "approach": "Perform information gathering from public sources",
+            "approach": self._plan_approach(detected),
         }
 
     def solve_challenge(self, challenge: Dict[str, Any]) -> Dict[str, Any]:

@@ -44,7 +44,9 @@ class QPDFTool(BaseTool):
 
         res = self.execute(args)
         
-        is_encrypted = "is encrypted" in res.stdout or "password" in res.stderr.lower()
+        # Check both stdout and stderr for "encrypted", "password required", etc.
+        combined = (res.stdout + res.stderr).lower()
+        is_encrypted = "encrypted" in combined or "password" in combined or res.exit_code != 0
         
         # If we provided a password and it worked
         success = res.exit_code == 0 and password is not None

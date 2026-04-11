@@ -7,6 +7,8 @@ This module defines the abstract base class that all agents must implement.
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List, Optional
 from enum import Enum
+import subprocess
+import time
 
 
 class AgentType(Enum):
@@ -99,3 +101,62 @@ class BaseAgent(ABC):
         """Mark current task as complete"""
         self.current_task = None
         self.status = AgentStatus.IDLE
+
+    def _plan_approach(self, indicators: List[str]) -> str:
+        """
+        Default approach planner. Can be overridden by specialists.
+        
+        Args:
+            indicators: List of detected indicators or types
+            
+        Returns:
+            A string describing the planned approach
+        """
+        if not indicators:
+            return "General analysis and tool execution"
+        return f"Focus on {', '.join(indicators)} indicators"
+
+    def run_shell_command(self, command: str, timeout: int = 60):
+        """
+        Helper to run shell commands from agents.
+        """
+        from tools.common.result import ToolResult
+        start_time = time.time()
+        try:
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            stdout, stderr = process.communicate(timeout=timeout)
+            duration = time.time() - start_time
+            return ToolResult(
+                argv=command.split(),
+                stdout=stdout,
+                stderr=stderr,
+                exit_code=process.returncode,
+                timed_out=False,
+                duration_s=duration
+            )
+        except subprocess.TimeoutExpired:
+            duration = time.time() - start_time
+            return ToolResult(
+                argv=command.split(),
+                stdout="",
+                stderr="Timeout",
+                exit_code=-1,
+                timed_out=True,
+                duration_s=duration
+            )
+        except Exception as e:
+            duration = time.time() - start_time
+            return ToolResult(
+                argv=command.split(),
+                stdout="",
+                stderr=str(e),
+                exit_code=-1,
+                timed_out=False,
+                duration_s=duration
+            )

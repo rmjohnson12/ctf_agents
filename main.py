@@ -31,10 +31,15 @@ def main(argv: List[str]) -> int:
     coordinator = CoordinatorAgent(browser_snapshot_tool=browser_tool)
 
     # Register agents with IDs that match the reasoner/coordinator routing targets
-    coordinator.register_agent(CryptographyAgent())  # agent_id defaults to "crypto_agent"
+    from tools.crypto.john import JohnTool
+    from tools.crypto.hashcat import HashcatTool
+    john_tool = JohnTool()
+    hashcat_tool = HashcatTool()
+
+    coordinator.register_agent(CryptographyAgent(john_tool=john_tool, hashcat_tool=hashcat_tool))  # agent_id defaults to "crypto_agent"
     coordinator.register_agent(WebExploitationAgent(agent_id="web_agent", browser_tool=browser_tool))
     coordinator.register_agent(CodingAgent(agent_id="coding_agent"))
-    coordinator.register_agent(ForensicsAgent(agent_id="forensics_agent"))
+    coordinator.register_agent(ForensicsAgent(agent_id="forensics_agent", john_tool=john_tool, hashcat_tool=hashcat_tool))
     coordinator.register_agent(ReverseEngineeringAgent(agent_id="reverse_agent"))
     coordinator.register_agent(OSINTAgent(agent_id="osint_agent", browser_tool=browser_tool))
     coordinator.register_agent(LogAnalysisAgent(agent_id="log_agent"))
