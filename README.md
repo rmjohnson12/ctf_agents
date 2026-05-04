@@ -1,100 +1,180 @@
-# CTF_Agents: Autonomous Security Operations
+# CTF_Agents
 
-**CTF_Agents** is an advanced, iterative multi-agent system designed to autonomously solve Capture The Flag (CTF) challenges. Unlike traditional linear scanners, this system uses an **iterative feedback loop** to reason about artifacts, execute complex tools, and adapt its strategy in real time.
+CTF_Agents is a Python multi-agent system for authorized Capture The Flag
+workflows. It routes challenge prompts to specialist agents, runs security tools
+through a common wrapper layer, captures observations, and iterates until it can
+report a result or explain what blocked progress.
 
-## 🔥 Demo: Natural Language Interface
+The fastest way to use it is the natural-language CLI in `ask.py`. You describe
+the task, the router maps it to the best specialist, and the coordinator manages
+the solving loop.
 
-You can now give instructions in plain English. The system automatically maps your request to the right tools and files.
+## What It Can Work On
 
-```bash
-# Example: Reverse Engineering (Analyze logic + Verify)
-python3 ask.py "Find a password for ~/Downloads/PYTHON1.py"
+- Reverse engineering tasks involving Python files, executables, binaries, and
+  constraint-style password checks.
+- Cryptography and password-cracking tasks using hashes, encodings, wordlists,
+  John the Ripper, and Hashcat.
+- Web challenges with browser snapshots, HTTP fetching, directory discovery, and
+  SQL injection tooling.
+- Forensics tasks involving PDFs, PCAPs, metadata, embedded files, strings, and
+  recovered artifacts.
+- OSINT and log-analysis tasks for metadata, domains, authentication events, and
+  anomaly patterns.
+- Miscellaneous coding/math tasks that benefit from generated Python scripts.
 
-# Example: Password Cracking
-python3 ask.py "Decrypt hash 68a96446a5afb4ab69a2d15091771e39 using my_passwords.txt"
+## Repository Layout
+
+```text
+agents/       Agent implementations and specialist solvers
+core/         Coordinator, routing, challenge models, task queue, results
+tools/        Tool wrappers for web, crypto, forensics, network, pwn, and common utilities
+config/       System, agent, tool, and environment configuration
+challenges/   Example and active challenge JSON files
+results/      Generated reports, artifacts, and captured flags
+logs/         Runtime logs
+tests/        Unit and end-to-end tests
+docs/         Architecture and getting-started documentation
 ```
 
-**[ROUTER]** target=reverse_agent action=run_agent  
-→ *Extracted constraints: Sum=1000, Length=10, Index 1='S'*  
-→ *Derived candidate: mSeeeeeeee*  
-→ *Executing PYTHON1.py mSeeeeeeee...*
+For a fuller architecture map, see `PROJECT_STRUCTURE.md` and
+`docs/architecture/system_overview.md`.
 
-✅ **Verification SUCCESS:** Program returned 'correct'
+## Requirements
 
----
+- Python 3.10 or newer.
+- Python packages from `requirements.txt`.
+- Optional LLM key:
+  - `NVAPI_KEY` for NVIDIA NIM, which is checked first.
+  - `OPENAI_API_KEY` for OpenAI fallback.
+- Optional command-line security tools, depending on the challenge type:
+  - `john`
+  - `hashcat`
+  - `binwalk`
+  - `exiftool`
+  - `qpdf`
+  - `nmap`
+  - `sqlmap`
+  - `tshark`
+  - `strings`
 
-## 🧠 TL;DR
-An iterative, multi-agent CTF system that reasons → acts → observes → adapts → solves (iteratively).
+The system still has heuristic routing when no LLM key is configured, but LLM
+configuration improves natural-language mapping and planning.
 
----
+## Installation
 
-## 🚀 Key Innovations
-
-### 1. Natural Language Entry (`ask.py`)
-Just type what you want to do. The system:
-*   **Identifies Files**: Automatically detects filenames and paths (including `~/`) in your prompt.
-*   **Auto-Categorizes**: Maps tasks to Web, Crypto, Forensics, or Reverse Engineering based on content.
-*   **Heuristic Fallback**: Works with high reliability even without an OpenAI API key.
-
-### 2. Specialized Red Team Agents
-*   **Reverse Engineering Agent**: Static analysis of source code (`.py`) and binaries. Features a **Constraint Solver** that extracts mathematical logic and **Verifies** solutions via live execution before reporting.
-*   **Web Agent**: Automated reconnaissance via **Playwright**, directory discovery via **dirsearch**, and SQL injection via **sqlmap**.
-*   **Crypto Agent**: Deep integration with **Hashcat** and **John the Ripper**. Supports raw-md5, dictionary attacks, and wordlist auto-detection.
-*   **Forensics Agent**: Sequential analysis using **Binwalk**, **ExifTool**, **Strings**, and **QPDF**.
-*   **Coding Agent**: Generates and executes Python scripts to solve logic/math puzzles, with **Self-Correction** (auto-fixes crashing scripts).
-
-### 3. NCL & HTB Optimized
-*   **SKY-XXXX-####**: Native support for NCL Cyber Skyline flag patterns.
-*   **HTB{...}**: Optimized for Hack The Box style flags and session-authenticated browser snapshots.
-*   **Universal Detection**: Centralized logic catches flags across all tool outputs, logs, and artifacts.
-
-### 4. Standardized Tool & Result Layer
-*   **BaseTool**: All tools use a unified interface with strict timeouts and safety boundaries.
-*   **Result Manager**: Findings are persisted in `results/{challenge_id}/` with dedicated folders for reports, artifacts, and flags.
-
-### 5. Latest Updates (NCL Prep Session)
-*   **OSINT Specialist**: New agent for metadata extraction, domain harvesting, and information gathering.
-*   **Log Analysis Specialist**: Detects brute-force patterns and statistical anomalies in server/auth logs.
-*   **Advanced Network Forensics**: Integrated **Scapy** for deep-packet inspection and binary stream reconstruction (recovers flags from custom TCP/UDP protocols).
-*   **Automated Web Exploitation**:
-    *   **Login Bypass**: Heuristic SQLi and Cookie Manipulation (`admin=true`) automation.
-    *   **Logic Flaw Engine**: Specifically detects and exploits **parseInt() octal bugs** found in leaked JS files.
-    *   **Heuristic Discovery**: Lightweight, high-speed directory discovery for common CTF leaks (`.env`, `.git/config`, backups).
-*   **Disk & Output Optimization**: Automated results cleanup (keeps only the 5 most recent runs) and suppressed logging for faster, cleaner terminal output.
-
----
-
-## 🚦 Getting Started
-
-### Prerequisites
-*   Python 3.10+
-*   Security Tools: `hashcat`, `john`, `binwalk`, `exiftool`, `strings`, `qpdf`, `nmap`.
-*   *(Optional)* OpenAI API Key in `.env` for advanced reasoning.
-
-### Installation
 ```bash
-git clone https://github.com/YOUR_USERNAME/CTF_Agents.git
+git clone https://github.com/rmjohnson12/CTF_Agents.git
 cd CTF_Agents
+
 python3 -m venv .venv
 source .venv/bin/activate
+
 pip install -r requirements.txt
 ```
 
----
+If you plan to use browser-based web tooling, install Playwright's browser
+runtime after installing dependencies:
 
-## 🧪 Testing
+```bash
+python -m playwright install
+```
+
+Copy the example environment file if you want LLM-backed routing or optional
+external integrations:
+
+```bash
+cp config/.env.example .env
+```
+
+Then set `NVAPI_KEY` or `OPENAI_API_KEY` in `.env`. The runtime loads `.env` from
+the project root.
+
+## Quick Start
+
+Use `ask.py` for natural-language tasks:
+
+```bash
+python3 ask.py "Find the password for ~/Downloads/reverse_me.py"
+python3 ask.py "Decode this base64 challenge from challenges/templates/example_crypto_base64.json"
+python3 ask.py "Analyze suspicious traffic in capture.pcapng and recover the flag"
+python3 ask.py "Check http://challenge.local:8080 for common CTF web leaks"
+```
+
+`ask.py` will:
+
+1. Convert the instruction into a challenge object.
+2. Detect referenced files, URLs, and available local tools.
+3. Route the task to a specialist agent.
+4. Print the final status, flag if found, and steps taken.
+
+## JSON Challenge Mode
+
+Use `main.py` when you already have a challenge JSON file:
+
+```bash
+python3 main.py challenges/templates/example_crypto_base64.json
+```
+
+Challenge files are dictionaries with fields such as:
+
+```json
+{
+  "id": "example_crypto_base64",
+  "name": "Base64 Warmup",
+  "category": "crypto",
+  "description": "Decode the provided message and recover the flag.",
+  "files": []
+}
+```
+
+Existing examples live in `challenges/templates/` and simulated active
+challenges live in `challenges/active/`.
+
+## Configuration
+
+The main configuration files are:
+
+- `config/system_config.yaml` for global runtime settings.
+- `config/agents_config.yaml` for specialist behavior and priorities.
+- `config/tools_config.yaml` for tool paths, timeouts, and enablement.
+- `config/.env.example` for API keys and optional integrations.
+
+Tool availability is detected at runtime where possible, so missing external
+tools should degrade specific capabilities rather than preventing all usage.
+
+## Testing
+
+Run the unit suite:
+
 ```bash
 pytest tests/unit/
 ```
 
----
+Run everything:
 
-## 🔒 Security & Ethics
-This system is intended for **authorized CTF competitions**, **security research**, and **educational use**. 
-**Do not use against live systems without explicit, written permission.**
+```bash
+pytest
+```
 
----
+The test suite includes coordinator routing, reasoner fallback behavior, tool
+wrappers, flag detection utilities, and end-to-end fixtures.
 
-## 🙏 Acknowledgments
-*   Original architecture by **TonyZeroArch**.
-*   Built for the global CTF and AI Security research community.
+## Development Notes
+
+- Add new agents under `agents/specialists/` or `agents/support/`.
+- Add command wrappers under `tools/` using the shared tool/result patterns.
+- Keep generated outputs in `results/` and runtime logs in `logs/`.
+- Prefer adding focused tests in `tests/unit/` for routing, parsing, and wrapper
+  behavior before broad end-to-end coverage.
+
+## Security And Ethics
+
+This project is intended for authorized CTF competitions, lab environments,
+security research, and education. Do not run it against systems you do not own
+or do not have explicit permission to test.
+
+## Acknowledgments
+
+Original architecture by TonyZeroArch. Continued development is focused on
+practical, iterative CTF automation and agent-assisted security research.
